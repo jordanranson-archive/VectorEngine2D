@@ -1,0 +1,5 @@
+Vector Engine 2D by Jordan Ranson is licensed under a Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+Based on a work at https://github.com/jordanranson/VectorEngine2D.
+Permissions beyond the scope of this license may be available at https://github.com/jordanranson/VectorEngine2D.
+
+Vector Engine 2D is copyright 2012 Jordan Ranson.

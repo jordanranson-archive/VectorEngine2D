@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+	<meta charset="UTF-8">
+	<script src="vectorEngine2d/util.js"></script>
+	<script src="vectorEngine2d/key.js"></script>
+	<script src="vectorEngine2d/renderManager.js"></script>
+	<script src="vectorEngine2d/inputManager.js"></script>
+	<script src="vectorEngine2d/vectorEngine2d.js"></script>
+	<script>
+		window.onload = function() {
+			var game = new VectorEngine2d("gameCanvas");
+			game.run();
+		};
+	</script>
+	<style>
+		body {
+			background: #242424;
+			color: #666;
+			font-size: 8pt;
+			font-family: sans-serif;
+			padding: 0;
+			margin: 0;
+		}
+	</style>
+</head>
+<body>
+	<canvas width="860" height="480" id="gameCanvas"></canvas>
+</body>
+</html>
