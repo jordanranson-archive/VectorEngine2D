@@ -4,12 +4,17 @@
 	<meta charset="UTF-8">
 	<script src="vectorEngine2d/util.js"></script>
 	<script src="vectorEngine2d/key.js"></script>
+	<script src="vectorEngine2d/scene.js"></script>
+	<script src="vectorEngine2d/level.js"></script>
 	<script src="vectorEngine2d/renderManager.js"></script>
 	<script src="vectorEngine2d/inputManager.js"></script>
+	<script src="vectorEngine2d/sceneManager.js"></script>
+	<script src="vectorEngine2d/gameObjectManager.js"></script>
 	<script src="vectorEngine2d/vectorEngine2d.js"></script>
 	<script>
+		var game;
 		window.onload = function() {
-			var game = new VectorEngine2d("gameCanvas");
+			game = new VectorEngine2d("gameCanvas");
 			game.run();
 		};
 	</script>
