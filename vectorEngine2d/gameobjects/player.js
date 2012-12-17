@@ -37,10 +37,12 @@ Player.prototype.collideWithTile = function(tile, adjx, adjy) {
 	var normal = angle + 90;
 	
 	// Collide with track
-	if(this.lasty + (this.width / 2) < col && adjy > col) {
+	if(this.lasty + this.height / 2 < col && adjy > col) {
 		this.y = col + (this.y - adjy);
 		this.isFalling = false;
 		this.jumpDist = 0;
+	
+	// Is falling or jumping
 	} else {
 		if(!this.isJumping) {
 			this.isFalling = true;
@@ -133,11 +135,13 @@ Player.prototype.update = function(game) {
 		this.isAlive = false;
 	}
 	
+	// Collide with left side of level
 	if(this.x - (this.width / 2) < 0) {
 		this.x = this.width / 2;
 		this.velocityX = 0;
 	}
 	
+	// Collide with right side of level
 	if(this.x + (this.width / 2) > game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30) {
 		this.x = game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30 - (this.width / 2);
 		this.velocityX = 0;
