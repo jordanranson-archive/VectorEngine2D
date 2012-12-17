@@ -9,7 +9,7 @@ var Player = function(x, y, width, height) {
 	this.maxJumpDist = 12;
 	this.jumpDist = 0;
 	this.lasty = y;
-	this.lastx = 0;
+	this.lastx = x;
 	
 	// States
 	this.isJumping = false;
@@ -152,6 +152,7 @@ Player.prototype.update = function(game) {
 	}
 	
 	this.lasty = this.y.toFixed(1); // last known y position
+	this.lastx = this.x.toFixed(1); // last known y position
 	
 	// Update the camera position
 	game.sceneManager.scene.camera.x = this.x - (game.renderManager.canvas.width / 2);

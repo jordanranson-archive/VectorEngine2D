@@ -6,7 +6,7 @@ var InputManager = function(keyMap) {
 		down: Key.downArrow,
 		forward: Key.rightArrow,
 		backward: Key.leftArrow,
-		jump: Key.space,
+		jump: Key.upArrow,
 		action1: Key.z,
 		action2: Key.x,
 		action3: Key.c,

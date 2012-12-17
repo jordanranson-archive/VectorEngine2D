@@ -54,7 +54,7 @@ Level.prototype.loadTiles = function(levelId) {
 	for(var i = levelPrefs.length / 2; i < levelPrefs.length; i ++) {
 		if(i % 5 == 0) {
 			if((Math.random() * 5) < 1) {
-				y = -100;
+				y = 1000;
 			} else {
 				y = (300 + (Math.random() * 150)).toFixed(0);
 			}
