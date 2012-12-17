@@ -3,12 +3,16 @@ var RenderManager = function(canvas) {
 	this.context = this.canvas.getContext("2d");
 };
 
-RenderManager.prototype.clear = function() {
+RenderManager.prototype.clear = function(color) {
 	this.context.save();
 
 	// Use the identity matrix while clearing the canvas
 	this.context.setTransform(1, 0, 0, 1, 0, 0);
 	this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	
+	if(color) {
+		this.drawRectangle(0, 0, this.canvas.width, this.canvas.height, "transparent", 0, color);
+	}
 
 	// Restore the transform
 	this.context.restore();

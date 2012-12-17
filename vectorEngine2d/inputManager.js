@@ -1,3 +1,5 @@
+var KeyAction = {};
+
 var InputManager = function(keyMap) {
 	var defaultKeyMap = {
 		up: Key.upArrow,
@@ -10,17 +12,16 @@ var InputManager = function(keyMap) {
 		action3: Key.c,
 		action4: Key.a,
 		action5: Key.s,
-		left: Key.leftArrow,
-		right: Key.rightArrow,
 		accept: Key.enter,
 		cancel: Key.escape,
-		pause: Key.escape
+		pause: Key.pause
 	};
 	
 	var _this = this;
 	this.keyEvents = {};
-	this.keyAction = Util.extendParams(defaultKeyMap, keyMap);
 	this.keysPressed = {};
+	this.keyAction = Util.extendParams(defaultKeyMap, keyMap);
+	KeyAction = this.keyAction;
 	
 	this.keydown = function(e) {
 		this.keysPressed[e.keyCode] = true;
