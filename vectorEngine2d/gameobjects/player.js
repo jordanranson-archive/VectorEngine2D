@@ -23,33 +23,6 @@ Player.prototype.addVelocity = function(x, y) {
 	this.velocityY += y;
 };
 
-// Collides with the world
-Player.prototype.collideWithTile = function(tile, adjx, adjy) {
-	var run = tile.x2 - tile.x1;
-	var rise = tile.y2 - tile.y1;
-	
-	var slope = rise / run;
-	var intersect = (tile.y1) - (tile.x1 * slope);
-	var col = (slope * adjx) + intersect;
-	
-	var angle = Util.radToDeg(Math.atan(rise / run));
-	this.angle = angle;
-	var normal = angle + 90;
-	
-	// Collide with track
-	if(this.lasty + this.height / 2 < col && adjy > col) {
-		this.y = col + (this.y - adjy);
-		this.isFalling = false;
-		this.jumpDist = 0;
-	
-	// Is falling or jumping
-	} else {
-		if(!this.isJumping) {
-			this.isFalling = true;
-		}
-	}
-};
-
 Player.prototype.update = function(game) {
 	if(this.isAlive) {
 		// Accelerate
@@ -88,16 +61,53 @@ Player.prototype.update = function(game) {
 	var adjy = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + (this.y + 2); // 2px padding for stroke width
 	
 	// Finds the line the player is going to collide with
-	var playerPos;
-	if(game.sceneManager.scene.tiles[0].level === 2) // background track
-		playerPos = adjx / /*levelPrefs.width*/30 >> 0;
-	else // foreground track
-		playerPos = adjx / /*levelPrefs.width*/30 >> 0;
+	var playerPos = adjx / /*levelPrefs.width*/30 >> 0;
 	
 	// Loop through the game.sceneManager.scene.tiles and collide with the player
 	for(var i = 0; i < game.sceneManager.scene.tiles.length; i++) {
-		if(i === playerPos)
-			this.collideWithTile(game.sceneManager.scene.tiles[i], adjx, adjy);
+		if(i === playerPos) {
+            var tile0 = game.sceneManager.scene.tiles[i-1];
+            var tile1 = game.sceneManager.scene.tiles[i];
+            var tile2 = game.sceneManager.scene.tiles[i+1];
+            
+            var run = tile1.x2 - tile1.x1;
+            var rise = tile1.y2 - tile1.y1;
+            var slope = rise / run;
+            var intersect = tile1.y1 - (tile1.x1 * slope);
+            var col1 = (slope * adjx) + intersect;
+            
+            var angle = Util.radToDeg(Math.atan(rise / run));
+            this.angle = angle;
+            
+            // Collide with track
+            if(adjy > col1) {
+                this.y = col1 + (this.y - adjy);
+                this.isFalling = false;
+                this.jumpDist = 0;
+            
+            // Is falling or jumping
+            } else {
+                if(!this.isJumping) {
+                    this.isFalling = true;
+                }
+            }
+            
+            // Collide with left tile
+            if(adjx + this.width / 2 > tile2.x1 && adjy - 20 > tile2.y1) {
+                this.x = tile2.x1 - this.width / 2;
+                if(this.velocityX > 0) {
+                    this.velocityX *= -0.3;
+                }
+            }
+            
+            // Collide with right tile
+            if(adjx - this.width / 2 < tile0.x2 && adjy - 20 > tile0.y2) {
+                this.x = tile0.x2 + this.width / 2;
+                if(this.velocityX < 0) {
+                    this.velocityX *= -0.3;
+                }
+            }
+        }
 	}
 
 	// Find the y direction the player is moving
@@ -166,5 +176,6 @@ Player.prototype.draw = function(renderManager, camera) {
 	var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
 	var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
 	renderManager.drawLine(this.x - camera.x, this.y, x - camera.x, y, "#a7c6e0", 2);
+	renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
 	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, "#218ae0", 2, "transparent");
 };
