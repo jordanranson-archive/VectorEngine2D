@@ -10,6 +10,7 @@ var Player = function(x, y, width, height) {
 	this.jumpDist = 0;
 	this.lasty = y;
 	this.lastx = x;
+    this.DEBUG = {};
 	
 	// States
 	this.isJumping = false;
@@ -74,37 +75,54 @@ Player.prototype.update = function(game) {
             var rise = tile1.y2 - tile1.y1;
             var slope = rise / run;
             var intersect = tile1.y1 - (tile1.x1 * slope);
-            var col1 = (slope * adjx) + intersect;
+            var col = (slope * adjx) + intersect;
             
             var angle = Util.radToDeg(Math.atan(rise / run));
             this.angle = angle;
             
-            // Collide with track
-            if(adjy > col1) {
-                this.y = col1 + (this.y - adjy);
+            // Collide with current tile's y
+            if(adjy > col) {
+                this.y = col + (this.y - adjy);
                 this.isFalling = false;
                 this.jumpDist = 0;
-            
-            // Is falling or jumping
             } else {
                 if(!this.isJumping) {
                     this.isFalling = true;
                 }
-            }
             
-            // Collide with left tile
+                // Collide with left tile's y
+                if(adjy > tile0.y2 && this.x - this.width / 2 < tile0.x2) {
+                    this.y = (tile0.y2 * 1) + (this.y - adjy);
+                    this.isFalling = false;
+                    this.jumpDist = 0;
+                }
+                
+                // Collide with right tile's y
+                if(adjy > tile2.y1 && this.x + this.width / 2 > tile2.x1) {
+                    this.y = (tile2.y1 * 1) + (this.y - adjy);
+                    this.isFalling = false;
+                    this.jumpDist = 0;
+                }
+            }
+                
+            // Is falling or jumping
+            /*} else {
+                
+            }*/
+            
+            // Collide with left tile's x
             if(adjx + this.width / 2 > tile2.x1 && adjy - 20 > tile2.y1) {
                 this.x = tile2.x1 - this.width / 2;
                 if(this.velocityX > 0) {
-                    this.velocityX *= -0.3;
+                    this.velocityX *= -0.15;
                 }
             }
             
-            // Collide with right tile
+            // Collide with right tile's x
             if(adjx - this.width / 2 < tile0.x2 && adjy - 20 > tile0.y2) {
                 this.x = tile0.x2 + this.width / 2;
                 if(this.velocityX < 0) {
-                    this.velocityX *= -0.3;
+                    this.velocityX *= -0.15;
                 }
             }
         }
