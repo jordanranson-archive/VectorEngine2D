@@ -61,6 +61,13 @@ Player.prototype.update = function(game) {
 	var adjx = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
 	var adjy = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + (this.y + 2); // 2px padding for stroke width
 	
+	// Find the y direction the player is moving
+	var yvel;
+	var yfixed = this.y.toFixed(1);
+	if(yfixed < this.lasty) yvel = 1;
+	if(yfixed > this.lasty) yvel = -1;
+	if(yfixed == this.lasty) yvel = 0;
+    
 	// Finds the line the player is going to collide with
 	var playerPos = adjx / /*levelPrefs.width*/30 >> 0;
 	
@@ -85,30 +92,28 @@ Player.prototype.update = function(game) {
                 this.y = col + (this.y - adjy);
                 this.isFalling = false;
                 this.jumpDist = 0;
+                //console.log("y top");
             } else {
                 if(!this.isJumping) {
                     this.isFalling = true;
                 }
             
-                // Collide with left tile's y
-                if(adjy > tile0.y2 && this.x - this.width / 2 < tile0.x2) {
-                    this.y = (tile0.y2 * 1) + (this.y - adjy);
-                    this.isFalling = false;
-                    this.jumpDist = 0;
-                }
-                
-                // Collide with right tile's y
-                if(adjy > tile2.y1 && this.x + this.width / 2 > tile2.x1) {
-                    this.y = (tile2.y1 * 1) + (this.y - adjy);
-                    this.isFalling = false;
-                    this.jumpDist = 0;
+                if(yvel <= 0) {
+                    // Collide with left tile's y
+                    if(adjy > tile0.y2 && this.x - this.width / 2 < tile0.x2) {
+                        this.y = (tile0.y2 * 1) + (this.y - adjy);
+                        this.isFalling = false;
+                        this.jumpDist = 0;
+                    }
+                    
+                    // Collide with right tile's y
+                    if(adjy > tile2.y1 && this.x + this.width / 2 > tile2.x1) {
+                        this.y = (tile2.y1 * 1) + (this.y - adjy);
+                        this.isFalling = false;
+                        this.jumpDist = 0;
+                    }
                 }
             }
-                
-            // Is falling or jumping
-            /*} else {
-                
-            }*/
             
             // Collide with left tile's x
             if(adjx + this.width / 2 > tile2.x1 && adjy - 20 > tile2.y1) {
@@ -127,13 +132,6 @@ Player.prototype.update = function(game) {
             }
         }
 	}
-
-	// Find the y direction the player is moving
-	var yvel;
-	var yfixed = this.y.toFixed(1);
-	if(yfixed < this.lasty) yvel = 1;
-	if(yfixed > this.lasty) yvel = -1;
-	if(yfixed == this.lasty) yvel = 0;
 	
 	// Apply extra gravity to keep player on slope during downward movement
 	// This prevents a bug where the player cannot jump while moving quickly
