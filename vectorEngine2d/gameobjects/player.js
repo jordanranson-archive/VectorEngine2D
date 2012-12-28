@@ -1,5 +1,5 @@
 var Player = function(game, x, y, width, height) {
-    _this = this;
+    var _this = this;
     this.game = game;
 	this.x = x;
 	this.y = y;
@@ -36,16 +36,17 @@ Player.prototype.addVelocity = function(x, y) {
 Player.prototype.update = function(game) {
 	if(this.isAlive) {
 		// Accelerate
-		if(game.inputManager.isKeyDown(KeyAction.forward))
+		if(game.inputManager.isKeyDown(KeyAction.forward)) {
 			this.addVelocity(0.65, 0);
+        }
 		
 		// Brake
-		if(game.inputManager.isKeyDown(KeyAction.backward))
+		if(game.inputManager.isKeyDown(KeyAction.backward)) {
 			this.addVelocity(-0.65, 0);
+        }
 			
 		// Jump
         if(this.isJumping) {
-            console.log("is jumping");
             if(game.inputManager.isKeyDown(KeyAction.jump)) {
                 if(!this.isFalling) {
                     this.isJumping = true;
@@ -83,7 +84,7 @@ Player.prototype.update = function(game) {
 	// Finds the line the player is going to collide with
 	var playerPos = adjx / /*levelPrefs.width*/30 >> 0;
 	
-	// Loop through the game.sceneManager.scene.tiles and collide with the player
+	// Loop through tiles and collide with the player
 	for(var i = 0; i < game.sceneManager.scene.tiles.length; i++) {
 		if(i === playerPos) {
             var tile0 = game.sceneManager.scene.tiles[i-1];
@@ -100,42 +101,51 @@ Player.prototype.update = function(game) {
             this.angle = angle;
             
             // Collide with current tile's y
-            if(this.lasty < col && adjy > col) {
-                this.y = col + (this.y - adjy);
-                this.isFalling = false;
-                //console.log("y top");
-            } else {
-                if(!this.isJumping) {
-                    this.isFalling = true;
+            if(adjy > col && tile1.type != TileType.air) {
+                if(this.lasty < col && !(game.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.passthrough)) {
+                    this.y = col + (this.y - adjy);
+                    this.isFalling = false;
                 }
-            
+            } else {
                 // Collide with left tile's y
-                if(this.lasty < tile0.y2 && adjy > tile0.y2 && this.x - this.width / 2 < tile0.x2) {
+                if(tile0.type != TileType.air 
+                && this.lasty < tile0.y2 && adjy > tile0.y2 
+                && adjx - this.width / 2 < tile0.x2
+                && !(game.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.passthrough)) {
                     this.y = (tile0.y2 * 1) + (this.y - adjy);
                     this.isFalling = false;
                 }
                 
                 // Collide with right tile's y
-                if(this.lasty < tile2.y1 && adjy > tile2.y1 && this.x + this.width / 2 > tile2.x1) {
+                if(tile2.type != TileType.air 
+                && this.lasty < tile2.y1 && adjy > tile2.y1 
+                && adjx + this.width / 2 > tile2.x1
+                && !(game.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.passthrough)) {
                     this.y = (tile2.y1 * 1) + (this.y - adjy);
                     this.isFalling = false;
+                }
+                
+                if(!this.isJumping) {
+                    this.isFalling = true;
                 }
             }
             
             // Collide with left tile's x
-            if(adjx + this.width / 2 > tile2.x1 && adjy - 20 > tile2.y1) {
-                this.x = tile2.x1 - this.width / 2;
-                if(this.velocityX > 0) {
-                    this.velocityX *= -0.15;
+            if(tile0.type == TileType.solid && adjx - this.width / 2 < tile0.x2 && adjy > tile0.y2) {
+                if(this.lasty >= tile1.y1) {
+                    this.x = tile0.x2 + this.width / 2;
+                    //console.log("LEFT");
                 }
+                //this.isAlive = false;
             }
             
             // Collide with right tile's x
-            if(adjx - this.width / 2 < tile0.x2 && adjy - 20 > tile0.y2) {
-                this.x = tile0.x2 + this.width / 2;
-                if(this.velocityX < 0) {
-                    this.velocityX *= -0.15;
+            if(tile2.type == TileType.solid && adjx + this.width / 2 > tile2.x1 && adjy > tile2.y1) {
+                if(this.lasty >= tile1.y2) {
+                    this.x = tile2.x1 - this.width / 2;
+                    console.log("RIGHT");
                 }
+                //this.isAlive = false;
             }
         }
 	}
@@ -171,14 +181,14 @@ Player.prototype.update = function(game) {
 	}
 	
 	// Collide with left side of level
-	if(this.x - (this.width / 2) < 0) {
-		this.x = this.width / 2;
+	if(this.x - (this.width / 2) <= 30) {
+		this.x = this.width / 2 + 30;
 		this.velocityX = 0;
 	}
 	
 	// Collide with right side of level
-	if(this.x + (this.width / 2) > game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30) {
-		this.x = game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30 - (this.width / 2);
+	if(this.x + (this.width / 2) >= game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30 - 30) {
+		this.x = game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30 - (this.width / 2) - 30;
 		this.velocityX = 0;
 	}
 	
@@ -187,6 +197,9 @@ Player.prototype.update = function(game) {
 		this.x = /*levelStart.x*/game.renderManager.canvas.width / 2;
 		this.y =  /*levelStart.y*/100;
 		this.velocity = {x: 0, y: 0};
+        this.isJumping = false;
+        this.jumpDist = 0;
+        this.isFalling = false;
 		this.isAlive = true;
 	}
 	
@@ -202,5 +215,5 @@ Player.prototype.draw = function(renderManager, camera) {
 	var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
 	renderManager.drawLine(this.x - camera.x, this.y, x - camera.x, y, "#a7c6e0", 2);
 	//renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
-	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, this.isJumping ? "red" : "#218ae0", 2, "transparent");
+	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
 };
