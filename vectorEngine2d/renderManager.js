@@ -37,6 +37,16 @@ RenderManager.prototype.drawCircle = function(cx, cy, r, strokeColor, strokeWidt
 	this.context.stroke();
 };
 
+RenderManager.prototype.drawArc = function(cx, cy, r, angleStart, distance, strokeColor, strokeWidth, fillColor) { 
+	this.context.beginPath();
+	this.context.arc(cx, cy, r, angleStart, distance, false);
+	this.context.fillStyle = fillColor;
+	this.context.fill();
+	this.context.lineWidth = strokeWidth;
+	this.context.strokeStyle = strokeColor;
+	this.context.stroke();
+};
+
 RenderManager.prototype.drawRectangle = function(x, y, width, height, strokeColor, strokeWidth, fillColor) { 
 	this.context.beginPath();
 	this.context.rect(x, y, width, height);

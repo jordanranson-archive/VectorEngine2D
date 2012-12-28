@@ -3,6 +3,7 @@ var Player = function(game, x, y, width, height) {
     this.game = game;
 	this.x = x;
 	this.y = y;
+    this.z = 0;
 	this.width = width;
 	this.height = height;
 	this.velocityX = 0;
@@ -18,6 +19,7 @@ var Player = function(game, x, y, width, height) {
 	this.isJumping = false;
 	this.isFalling = false;
     this.isOnGround = false;
+    this.isOnSolidGround = false;
 	this.isAlive = true;
     
     // Start jumping
@@ -117,27 +119,11 @@ Player.prototype.update = function(game) {
     if(adjY > col && tile1.type != TileType.air) {
         if(this.lastY < col) {
             if(game.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.passthrough) {
-                //this.isFalling = true;
+                this.isFalling = true;
             } else {
                 this.y = col + (this.y - adjY);
                 this.isFalling = false;
-            }
-            
-            // Speed up while going down a slope and holding the down key
-            if(this.isOnGround && game.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.solid) {
-                var pullVel = 0.4;
-                if(this.velocityX > 0 && this.angle > 0 && this.angle <= 45) {
-                    var vel = this.angle / 25 * 0.3 + 0.1;
-                    if(vel > pullVel) { vel = pullVel; }
-                    if(vel < 0) { vel = 0; }
-                    this.velocityX += vel;
-                }
-                /*if(this.velocityX < 0 && this.angle < 0 && this.angle >= -45) {
-                    var vel = (this.angle * -1) / 45 * pullVel;
-                    if(vel > pullVel) { vel = pullVel; }
-                    if(vel < 0) { vel = 0; }
-                    this.velocityX -= vel;
-                }*/
+                this.isOnSolidGround = (tile1.type == TileType.solid || tile1.type == TileType.oneway) && this.isOnGround;
             }
         }
     } else {
@@ -150,10 +136,11 @@ Player.prototype.update = function(game) {
         && this.lastY < tile0.y2 && adjY > tile0.y2 
         && adjX - this.width / 2 < tile0.x2) {
             if(game.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.passthrough) {
-                //this.isFalling = true;
+                this.isFalling = true;
             } else {
                 this.y = (tile0.y2 * 1) + (this.y - adjY);
                 this.isFalling = false;
+                this.isOnSolidGround = (tile0.type == TileType.solid || tile0.type == TileType.oneway) && this.isOnGround;
             }
         }
         
@@ -162,12 +149,30 @@ Player.prototype.update = function(game) {
         && this.lastY < tile2.y1 && adjY > tile2.y1 
         && adjX + this.width / 2 > tile2.x1) {
             if(game.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.passthrough) {
-                //this.isFalling = true;
+                this.isFalling = true;
             } else {
                 this.y = (tile2.y1 * 1) + (this.y - adjY);
                 this.isFalling = false;
+                this.isOnSolidGround = (tile2.type == TileType.solid || tile2.type == TileType.oneway) && this.isOnGround;
             }
         }
+    }
+    
+    // Speed up while going down a slope and holding the down key
+    if(this.isOnSolidGround && game.inputManager.isKeyDown(KeyAction.down)) {
+        var pullVel = 0.4;
+        if(this.velocityX > 0 && this.angle > 0 && this.angle <= 45) {
+            var vel = this.angle / 25 * 0.3 + 0.1;
+            if(vel > pullVel) { vel = pullVel; }
+            if(vel < 0) { vel = 0; }
+            this.velocityX += vel;
+        }
+        /*if(this.velocityX < 0 && this.angle < 0 && this.angle >= -45) {
+            var vel = (this.angle * -1) / 45 * pullVel;
+            if(vel > pullVel) { vel = pullVel; }
+            if(vel < 0) { vel = 0; }
+            this.velocityX -= vel;
+        }*/
     }
     
     // Collide with left tile's x

@@ -34,7 +34,7 @@ Level.prototype.loadTiles = function(levelId) {
 	
 	var levelDefaults = {
 		width: 30,
-		length: 400,
+		length: 200,
 		frequency: 0.2,
 		wavelength: 48,
 		offset: 330
@@ -45,16 +45,19 @@ Level.prototype.loadTiles = function(levelId) {
 		offset: levelDefaults.offset
 	};
 
-	var tile, wavelength, y, y2, y3, y4, type, tempPassLength, startPos, endPos;
+	var tile, wavelength, y, y2, y3, y4, type, displayType, data, tempPassLength, startPos, endPos;
     var freq1 = ((Math.random() * 0.15) * 1 + 0.1);
     var freq2 = ((Math.random() * 0.15) * 1 + 0.1);
     var gapLength = 0;
     var solidLength = 0;
     var passthroughLength = 0;
     
-    // Find a nice smooth slope to start on
+    // Find a smooth slope to start on
     var startLength = 25;
-    for(var count = startLength; startLength < levelDefaults.length + startLength; count++) {
+    var endLength = 50;
+    var endBuffer = 15;
+    count = startLength;
+    while(true) {
         wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 1) + freq2 *  Math.PI / 3) * 32);
         y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 1), wavelength, levelPrefs.offset);
         wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 32);
@@ -75,15 +78,21 @@ Level.prototype.loadTiles = function(levelId) {
                 break;
             }
         }
+        
+        count++;
     }
     levelDefaults.length += startPos - startLength;
 
     // Tile creation loop
 	for(var i = startPos - startLength; i < levelDefaults.length; i++) {
         type = TileType.solid;
+        displayType = TileDisplayType.solidGround;
+        data = false;
 
         // Gaps         
-        if((i > startPos && i < (levelDefaults.length - 25) && solidLength >= 3 && gapLength == 0 && (Math.random() * 20).toFixed() == 0)) {
+        if((i > startPos && i < (levelDefaults.length - endLength - endBuffer) // 25: flat end surface, 10: number of tiles before end to keep solid
+        && solidLength >= 3 && gapLength == 0 
+        && (Math.random() * 20).toFixed() == 0)) {
             passthroughLength = (Math.random() * 2).toFixed() * 1 + 1;
             tempPassLength = passthroughLength;
             gapLength = (Math.random() * 7).toFixed() * 1 + 4 + passthroughLength;
@@ -115,41 +124,41 @@ Level.prototype.loadTiles = function(levelId) {
             // Beginning edge of rail
             if(tempPassLength > 0) {
                 type = TileType.passthrough;
+                displayType = TileDisplayType.railOnly;
                 tempPassLength--;
                 
             // End edge of rail
             } else {
                 if(gapLength <= passthroughLength) {
                     type = TileType.passthrough;
+                    displayType = TileDisplayType.railOnly;
                 } else {
                     type = TileType.air;
+                    displayType = TileDisplayType.none;
                 }
                 gapLength--;
             }
         } else {
             //type = (i % 4 == 0 || i % 4 == 1) ? TileType.solid : TileType.passthrough;
-            type = TileType.solid;
+            type = TileType.oneway;
+            displayType = TileDisplayType.scaffold;
             solidLength++;
         }
         
         // Start of level
-        if(i <= startPos) {
-            // TODO: Find a nice slope to smooth out to
-            //  if next tile angle is within +/-10 degrees of 0
-            //      continue
-            //  else
-            //      
+        if(i <= startPos) {     
+            if(i <= startPos - 1) {     
+                type = TileType.solid;
+                displayType = TileDisplayType.solidGround;
+            }
+            if(i == startPos - 1) {
+                data = 1;
+                console.log(data);
+            }
             wavelength = levelPrefs.wavelength + (Math.sin(freq1 * startPos + freq2 *  Math.PI / 3) * 32);
             y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
             y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
-            
-        // End of level
-        } else if(i >= levelDefaults.length - 25) {
-            // TODO: Find a nice slope to smooth out to
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (levelDefaults.length - 25) + freq2 *  Math.PI / 3) * 32);
-            y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (levelDefaults.length - 25), wavelength, levelPrefs.offset);
-            y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (levelDefaults.length - 25), wavelength, levelPrefs.offset);
-            
+
         // Rest of level
         } else {
             wavelength = levelPrefs.wavelength + (Math.sin(freq1 * i + freq2 *  Math.PI / 3) * 32);
@@ -158,7 +167,42 @@ Level.prototype.loadTiles = function(levelId) {
             y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i + 1, wavelength, levelPrefs.offset);
         }
         
+        // End of level
+        if(i >= levelDefaults.length - endLength - 2) {
+            if(i < levelDefaults.length - endLength) {
+                type = TileType.passthrough;
+                displayType = TileDisplayType.railOnly;
+            }
+            
+            // Flat surface
+            if(i >= levelDefaults.length - endLength) {
+                y = 420;
+                y2 = 420;
+                
+                if(i <= levelDefaults.length - endLength + 5) {
+                    type = TileType.air;
+                    displayType = TileDisplayType.none;
+                } else if(i <= levelDefaults.length - endLength + 6) {
+                    type = TileType.passthrough;
+                    displayType = TileDisplayType.railOnly;
+                    y -= 7;
+                } else if(i > levelDefaults.length - endLength + 6) {
+                    type = TileType.solid;
+                    displayType = TileDisplayType.solidGround;
+                    if(i == levelDefaults.length - endLength + 7) {
+                        data = 2;
+                        console.log(data);
+                    }
+                }
+                
+            }
+        }
+        
         tile = new Tile((i - (startPos - startLength)) * levelDefaults.width, y, (i - (startPos - startLength)) * levelDefaults.width + levelDefaults.width, y2, type);
+        tile.displayType = displayType;
+        if(data !== false) {
+            tile.data = data;
+        }
         this.tiles.push(tile);
 	}
 };
