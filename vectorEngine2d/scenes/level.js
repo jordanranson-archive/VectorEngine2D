@@ -45,17 +45,45 @@ Level.prototype.loadTiles = function(levelId) {
 		offset: levelDefaults.offset
 	};
 
-	var tile, wavelength, y, y2, type, tempPassLength;
+	var tile, wavelength, y, y2, y3, y4, type, tempPassLength, startPos, endPos;
     var freq1 = ((Math.random() * 0.15) * 1 + 0.1);
     var freq2 = ((Math.random() * 0.15) * 1 + 0.1);
     var gapLength = 0;
     var solidLength = 0;
     var passthroughLength = 0;
-	for(var i = 0; i < levelDefaults.length; i ++) {
-        type = TileType.solid;
+    
+    // Find a nice smooth slope to start on
+    var startLength = 25;
+    for(var count = startLength; startLength < levelDefaults.length + startLength; count++) {
+        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 1) + freq2 *  Math.PI / 3) * 32);
+        y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 1), wavelength, levelPrefs.offset);
+        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 32);
+        y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 2), wavelength, levelPrefs.offset);
+        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count) + freq2 *  Math.PI / 3) * 32);
+        y3 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count), wavelength, levelPrefs.offset);
         
+        // If next tile has no more than +/- 10px difference in height
+        if(y == y3 && y2 - y > -10 && y2 - y < 10) {
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 32);
+            y3 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 2), wavelength, levelPrefs.offset);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 3) + freq2 *  Math.PI / 3) * 32);
+            y4 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 3), wavelength, levelPrefs.offset);
+            
+            // If 2nd next tile has the same slope direction as 1st
+            if((y2 - y < 0 && y4 - y3 < 0) || (y2 - y > 0 && y4 - y3 > 0)) {
+                startPos = count;
+                break;
+            }
+        }
+    }
+    levelDefaults.length += startPos - startLength;
+
+    // Tile creation loop
+	for(var i = startPos - startLength; i < levelDefaults.length; i++) {
+        type = TileType.solid;
+
         // Gaps         
-        if((i > 25 && i < (levelDefaults.length - 25) && solidLength >= 3 && gapLength == 0 && (Math.random() * 20).toFixed() == 0)) {
+        if((i > startPos && i < (levelDefaults.length - 25) && solidLength >= 3 && gapLength == 0 && (Math.random() * 20).toFixed() == 0)) {
             passthroughLength = (Math.random() * 2).toFixed() * 1 + 1;
             tempPassLength = passthroughLength;
             gapLength = (Math.random() * 7).toFixed() * 1 + 4 + passthroughLength;
@@ -105,13 +133,19 @@ Level.prototype.loadTiles = function(levelId) {
         }
         
         // Start of level
-        if(i <= 25) {
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * 26 + freq2 *  Math.PI / 3) * 32);
-            y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, 26, wavelength, levelPrefs.offset);
-            y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, 26, wavelength, levelPrefs.offset);
+        if(i <= startPos) {
+            // TODO: Find a nice slope to smooth out to
+            //  if next tile angle is within +/-10 degrees of 0
+            //      continue
+            //  else
+            //      
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * startPos + freq2 *  Math.PI / 3) * 32);
+            y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
+            y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
             
         // End of level
         } else if(i >= levelDefaults.length - 25) {
+            // TODO: Find a nice slope to smooth out to
             wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (levelDefaults.length - 25) + freq2 *  Math.PI / 3) * 32);
             y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (levelDefaults.length - 25), wavelength, levelPrefs.offset);
             y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (levelDefaults.length - 25), wavelength, levelPrefs.offset);
@@ -124,8 +158,8 @@ Level.prototype.loadTiles = function(levelId) {
             y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i + 1, wavelength, levelPrefs.offset);
         }
         
-		tile = new Tile(i * levelDefaults.width, y, i * levelDefaults.width + levelDefaults.width, y2, type);
-		this.tiles.push(tile);
+        tile = new Tile((i - (startPos - startLength)) * levelDefaults.width, y, (i - (startPos - startLength)) * levelDefaults.width + levelDefaults.width, y2, type);
+        this.tiles.push(tile);
 	}
 };
 

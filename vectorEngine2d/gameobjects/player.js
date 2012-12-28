@@ -156,7 +156,6 @@ Player.prototype.update = function(game) {
             if(tile0.type == TileType.solid && adjx - this.width / 2 < tile0.x2 && adjy > tile0.y2) {
                 if(this.lasty >= tile1.y1) {
                     this.x = tile0.x2 + this.width / 2;
-                    //console.log("LEFT");
                 }
                 //this.isAlive = false;
             }
@@ -165,7 +164,6 @@ Player.prototype.update = function(game) {
             if(tile2.type == TileType.solid && adjx + this.width / 2 > tile2.x1 && adjy > tile2.y1) {
                 if(this.lasty >= tile1.y2) {
                     this.x = tile2.x1 - this.width / 2;
-                    console.log("RIGHT");
                 }
                 //this.isAlive = false;
             }
