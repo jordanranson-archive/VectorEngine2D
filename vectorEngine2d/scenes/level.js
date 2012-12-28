@@ -34,54 +34,99 @@ Level.prototype.loadTiles = function(levelId) {
 	
 	var levelDefaults = {
 		width: 30,
-		length: 300,
+		length: 400,
 		frequency: 0.2,
 		wavelength: 48,
 		offset: 330
-        
+	};
+    var levelPrefs = {
+		frequency: levelDefaults.frequency,
+		wavelength: levelDefaults.wavelength,
+		offset: levelDefaults.offset
 	};
 
-	var tile, wavelength, y, y2;
+	var tile, wavelength, y, y2, type, tempPassLength;
+    var freq1 = ((Math.random() * 0.15) * 1 + 0.1);
+    var freq2 = ((Math.random() * 0.15) * 1 + 0.1);
     var gapLength = 0;
     var solidLength = 0;
+    var passthroughLength = 0;
 	for(var i = 0; i < levelDefaults.length; i ++) {
-        if(i > 25 && solidLength >= 2 && gapLength == 0 && (Math.random() * 5).toFixed() == 0) {
-            gapLength = (Math.random() * 9).toFixed() * 1 + 3;
+        type = TileType.solid;
+        
+        // Gaps         
+        if((i > 25 && i < (levelDefaults.length - 25) && solidLength >= 3 && gapLength == 0 && (Math.random() * 20).toFixed() == 0)) {
+            passthroughLength = (Math.random() * 2).toFixed() * 1 + 1;
+            tempPassLength = passthroughLength;
+            gapLength = (Math.random() * 7).toFixed() * 1 + 4 + passthroughLength;
             solidLength = 0;
         }
+        if(gapLength < 0) { 
+            gapLength = 0; 
+        }
+        if(passthroughLength < 0) {
+            passthroughLength = 0;
+        }
+        if(tempPassLength < 0) {
+            tempPassLength = 0;
+        }
         
-        if(gapLength < 0) { gapLength = 0; };
-        
+        // Choose gap or rail
         if(gapLength > 0) {
-            y = 420;
-            y2 = 420;
-            gapLength--;
+            // Randomize track
+            if(gapLength == passthroughLength + 1) {
+                levelPrefs = {
+                    frequency: levelDefaults.frequency + ((Math.random() * 0.2) * 1 - 0.1),
+                    wavelength: levelDefaults.wavelength + ((Math.random() * 24).toFixed() * 1 - 12),
+                    offset: levelDefaults.offset + ((Math.random() * 50).toFixed() * 1)
+                };
+                freq1 = ((Math.random() * 0.15) * 1 + 0.1);
+                freq2 = ((Math.random() * 0.15) * 1 + 0.1);
+            }
+            
+            // Beginning edge of rail
+            if(tempPassLength > 0) {
+                type = TileType.passthrough;
+                tempPassLength--;
+                
+            // End edge of rail
+            } else {
+                if(gapLength <= passthroughLength) {
+                    type = TileType.passthrough;
+                } else {
+                    type = TileType.air;
+                }
+                gapLength--;
+            }
         } else {
-            wavelength = levelDefaults.wavelength + (Math.sin(0.25 * i + 0.1 *  Math.PI / 3) * 32);
-            y = getNextPoint(levelDefaults.frequency, levelDefaults.frequency * Math.PI / 3, i, wavelength, levelDefaults.offset);
-
-            wavelength = levelDefaults.wavelength + (Math.sin(0.25 * (i + 1) + 0.1 *  Math.PI / 3) * 32);
-            y2 = getNextPoint(levelDefaults.frequency, levelDefaults.frequency * Math.PI / 3, i + 1, wavelength, levelDefaults.offset);
+            //type = (i % 4 == 0 || i % 4 == 1) ? TileType.solid : TileType.passthrough;
+            type = TileType.solid;
             solidLength++;
         }
         
-		tile = new Tile(i * levelDefaults.width, y, i * levelDefaults.width + levelDefaults.width, y2);
+        // Start of level
+        if(i <= 25) {
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * 26 + freq2 *  Math.PI / 3) * 32);
+            y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, 26, wavelength, levelPrefs.offset);
+            y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, 26, wavelength, levelPrefs.offset);
+            
+        // End of level
+        } else if(i >= levelDefaults.length - 25) {
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (levelDefaults.length - 25) + freq2 *  Math.PI / 3) * 32);
+            y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (levelDefaults.length - 25), wavelength, levelPrefs.offset);
+            y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (levelDefaults.length - 25), wavelength, levelPrefs.offset);
+            
+        // Rest of level
+        } else {
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * i + freq2 *  Math.PI / 3) * 32);
+            y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i, wavelength, levelPrefs.offset);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (i + 1) + freq2 *  Math.PI / 3) * 32);
+            y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i + 1, wavelength, levelPrefs.offset);
+        }
+        
+		tile = new Tile(i * levelDefaults.width, y, i * levelDefaults.width + levelDefaults.width, y2, type);
 		this.tiles.push(tile);
 	}
-	
-	/*var y = 300 + (Math.random() * 150);
-	var y;
-	for(var i = levelPrefs.length / 2; i < levelPrefs.length; i ++) {
-		if(i % 5 == 0) {
-			if((Math.random() * 5) < 1) {
-				y = 1000;
-			} else {
-				y = (300 + (Math.random() * 150)).toFixed(0);
-			}
-		}
-		tile = new Tile(i * levelPrefs.width, y, i * levelPrefs.width + levelPrefs.width, y);
-		this.tiles.push(tile);
-	}*/
 };
 
 Level.prototype.update = function() {
