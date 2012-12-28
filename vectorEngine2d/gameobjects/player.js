@@ -1,4 +1,6 @@
-var Player = function(x, y, width, height) {
+var Player = function(game, x, y, width, height) {
+    _this = this;
+    this.game = game;
 	this.x = x;
 	this.y = y;
 	this.width = width;
@@ -16,6 +18,13 @@ var Player = function(x, y, width, height) {
 	this.isJumping = false;
 	this.isFalling = false;
 	this.isAlive = true;
+    
+    // Start jumping
+	this.game.inputManager.addKeyEvent(KeyAction.jump, function() {
+		if(!_this.isJumping && !_this.isFalling) {
+            _this.isJumping = true;
+        }
+	});
 };
 
 // Adds velocity to the player
@@ -35,17 +44,20 @@ Player.prototype.update = function(game) {
 			this.addVelocity(-0.65, 0);
 			
 		// Jump
-		if(game.inputManager.isKeyDown(KeyAction.jump)) {
-			if(!this.isFalling && !this.isJumping) {
-				this.isJumping = true;
-			}
-		// Stop jumping
-		} else {
-			if(this.isJumping) {
-				this.isJumping = false;
-				jumpDist = 0;
-			}
-		}
+        if(this.isJumping) {
+            console.log("is jumping");
+            if(game.inputManager.isKeyDown(KeyAction.jump)) {
+                if(!this.isFalling) {
+                    this.isJumping = true;
+                }
+            // Stop jumping
+            } else {
+                if(this.isJumping) {
+                    this.isJumping = false;
+                    jumpDist = 0;
+                }
+            }
+        }
 	}
 
 	this.y += 7.5; // gravity
@@ -88,30 +100,25 @@ Player.prototype.update = function(game) {
             this.angle = angle;
             
             // Collide with current tile's y
-            if(adjy > col) {
+            if(this.lasty < col && adjy > col) {
                 this.y = col + (this.y - adjy);
                 this.isFalling = false;
-                this.jumpDist = 0;
                 //console.log("y top");
             } else {
                 if(!this.isJumping) {
                     this.isFalling = true;
                 }
             
-                if(yvel <= 0) {
-                    // Collide with left tile's y
-                    if(adjy > tile0.y2 && this.x - this.width / 2 < tile0.x2) {
-                        this.y = (tile0.y2 * 1) + (this.y - adjy);
-                        this.isFalling = false;
-                        this.jumpDist = 0;
-                    }
-                    
-                    // Collide with right tile's y
-                    if(adjy > tile2.y1 && this.x + this.width / 2 > tile2.x1) {
-                        this.y = (tile2.y1 * 1) + (this.y - adjy);
-                        this.isFalling = false;
-                        this.jumpDist = 0;
-                    }
+                // Collide with left tile's y
+                if(this.lasty < tile0.y2 && adjy > tile0.y2 && this.x - this.width / 2 < tile0.x2) {
+                    this.y = (tile0.y2 * 1) + (this.y - adjy);
+                    this.isFalling = false;
+                }
+                
+                // Collide with right tile's y
+                if(this.lasty < tile2.y1 && adjy > tile2.y1 && this.x + this.width / 2 > tile2.x1) {
+                    this.y = (tile2.y1 * 1) + (this.y - adjy);
+                    this.isFalling = false;
                 }
             }
             
@@ -154,7 +161,9 @@ Player.prototype.update = function(game) {
 		} else {
 			this.velocityY = jumpVel;
 		}	
-	}
+	} else {
+        this.jumpDist = 0;
+    }
 	
 	// Die when falling off the edge of the world
 	if(adjy > game.renderManager.canvas.height + this.width) {
@@ -192,6 +201,6 @@ Player.prototype.draw = function(renderManager, camera) {
 	var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
 	var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
 	renderManager.drawLine(this.x - camera.x, this.y, x - camera.x, y, "#a7c6e0", 2);
-	renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
-	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, "#218ae0", 2, "transparent");
+	//renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
+	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, this.isJumping ? "red" : "#218ae0", 2, "transparent");
 };
