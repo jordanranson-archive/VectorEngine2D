@@ -17,11 +17,12 @@ var Player = function(game, x, y, width, height) {
 	// States
 	this.isJumping = false;
 	this.isFalling = false;
+    this.isOnGround = false;
 	this.isAlive = true;
     
     // Start jumping
 	this.game.inputManager.addKeyEvent(KeyAction.jump, function() {
-		if(!_this.isJumping && !_this.isFalling) {
+		if(_this.isOnGround) {
             _this.isJumping = true;
         }
 	});
@@ -34,6 +35,9 @@ Player.prototype.addVelocity = function(x, y) {
 };
 
 Player.prototype.update = function(game) {
+    // Is player on the ground
+    this.isOnGround = !this.isFalling && !this.isJumping;
+
 	if(this.isAlive) {
 		// Accelerate
 		if(game.inputManager.isKeyDown(KeyAction.forward)) {
@@ -63,6 +67,24 @@ Player.prototype.update = function(game) {
 
 	this.y += 7.5; // gravity
 
+    // Pull the player down if on a slope
+    if(this.isOnGround) {
+        var pullVel = 0.2;
+        if(this.angle > 0 && this.angle <= 45) {
+            var vel = this.angle / 45 * pullVel;
+            if(vel > pullVel) { vel = pullVel; }
+            if(vel < 0) { vel = 0; }
+            this.velocityX += vel;
+        }
+        if(this.angle < 0 && this.angle >= -45) {
+            var vel = (this.angle * -1) / 45 * pullVel;
+            if(vel > pullVel) { vel = pullVel; }
+            if(vel < 0) { vel = 0; }
+            this.velocityX -= vel;
+        }
+    }
+    
+    // Add velocity to position
 	this.x += this.velocityX;
 	this.y += this.velocityY;
 	
@@ -197,9 +219,10 @@ Player.prototype.update = function(game) {
 		this.x = /*levelStart.x*/game.renderManager.canvas.width / 2;
 		this.y =  /*levelStart.y*/100;
 		this.velocity = {x: 0, y: 0};
-        this.isJumping = false;
         this.jumpDist = 0;
+        this.isJumping = false;
         this.isFalling = false;
+        this.isOnGround = false;
 		this.isAlive = true;
 	}
 	
@@ -215,5 +238,5 @@ Player.prototype.draw = function(renderManager, camera) {
 	var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
 	renderManager.drawLine(this.x - camera.x, this.y, x - camera.x, y, "#a7c6e0", 2);
 	//renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
-	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
+	renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, "#218ae0", 2, "transparent");
 };
