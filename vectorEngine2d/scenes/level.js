@@ -12,7 +12,7 @@ var Level = function(game, levelId) {
 	this.loadTiles(levelId);
 	
 	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(this.game.renderManager.canvas.width / 2, 100, 40, 40));
+	this.gameObjectManager.addObject(new Player(game, this.game.renderManager.canvas.width / 2, 100, 40, 40));
 	
 	// Pause the game
 	this.game.inputManager.addKeyEvent(KeyAction.cancel, function() {
@@ -32,24 +32,44 @@ Level.prototype.loadTiles = function(levelId) {
 		return (Math.sin(frequency * step + offset) * width + center) >> 0;
 	}
 	
-	var levelPrefs = {
+	var levelDefaults = {
 		width: 30,
-		length: 100,
+		length: 300,
 		frequency: 0.2,
 		wavelength: 48,
-		offset: 330,
-		numLines: 50
+		offset: 330
+        
 	};
 
-	var tile;
-	for(var i = 0; i < levelPrefs.length / 2; i ++) {
-		var y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i, levelPrefs.wavelength, levelPrefs.offset);
-		var y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i + 1, levelPrefs.wavelength, levelPrefs.offset);
-		tile = new Tile(i * levelPrefs.width, y, i * levelPrefs.width + levelPrefs.width, y2);
+	var tile, wavelength, y, y2;
+    var gapLength = 0;
+    var solidLength = 0;
+	for(var i = 0; i < levelDefaults.length; i ++) {
+        if(i > 25 && solidLength >= 2 && gapLength == 0 && (Math.random() * 5).toFixed() == 0) {
+            gapLength = (Math.random() * 9).toFixed() * 1 + 3;
+            solidLength = 0;
+        }
+        
+        if(gapLength < 0) { gapLength = 0; };
+        
+        if(gapLength > 0) {
+            y = 420;
+            y2 = 420;
+            gapLength--;
+        } else {
+            wavelength = levelDefaults.wavelength + (Math.sin(0.25 * i + 0.1 *  Math.PI / 3) * 32);
+            y = getNextPoint(levelDefaults.frequency, levelDefaults.frequency * Math.PI / 3, i, wavelength, levelDefaults.offset);
+
+            wavelength = levelDefaults.wavelength + (Math.sin(0.25 * (i + 1) + 0.1 *  Math.PI / 3) * 32);
+            y2 = getNextPoint(levelDefaults.frequency, levelDefaults.frequency * Math.PI / 3, i + 1, wavelength, levelDefaults.offset);
+            solidLength++;
+        }
+        
+		tile = new Tile(i * levelDefaults.width, y, i * levelDefaults.width + levelDefaults.width, y2);
 		this.tiles.push(tile);
 	}
 	
-	var y = 300 + (Math.random() * 150);
+	/*var y = 300 + (Math.random() * 150);
 	var y;
 	for(var i = levelPrefs.length / 2; i < levelPrefs.length; i ++) {
 		if(i % 5 == 0) {
@@ -61,7 +81,7 @@ Level.prototype.loadTiles = function(levelId) {
 		}
 		tile = new Tile(i * levelPrefs.width, y, i * levelPrefs.width + levelPrefs.width, y);
 		this.tiles.push(tile);
-	}
+	}*/
 };
 
 Level.prototype.update = function() {
