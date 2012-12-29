@@ -10,6 +10,7 @@
 	<script src="vectorEngine2d/enums/key.js"></script>
 	<script src="vectorEngine2d/enums/tileType.js"></script>
 	<script src="vectorEngine2d/enums/tileDisplayType.js"></script>
+	<script src="vectorEngine2d/enums/resourceType.js"></script>
 	
 	<!-- Scenes -->
 	<script src="vectorEngine2d/scenes/scene.js"></script>
@@ -24,6 +25,7 @@
 	<script src="vectorEngine2d/renderManager.js"></script>
 	<script src="vectorEngine2d/inputManager.js"></script>
 	<script src="vectorEngine2d/sceneManager.js"></script>
+	<script src="vectorEngine2d/resourceManager.js"></script>
 	<script src="vectorEngine2d/gameObjectManager.js"></script>
 	<script src="vectorEngine2d/vectorEngine2d.js"></script>
 	<script>
@@ -42,6 +44,14 @@
 			padding: 0;
 			margin: 0;
 		}
+        canvas {
+            image-rendering: optimizeSpeed;             // Older versions of FF
+            image-rendering: -moz-crisp-edges;          // FF 6.0+
+            image-rendering: -webkit-optimize-contrast; // Webkit
+                                                        //  (Safari now, Chrome soon)
+            image-rendering: optimize-contrast;         // Possible future browsers.
+            -ms-interpolation-mode: nearest-neighbor;   // IE
+        }
 	</style>
 </head>
 <body>

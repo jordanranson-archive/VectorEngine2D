@@ -12,15 +12,26 @@ var Level = function(game, levelId) {
 	this.loadTiles(levelId);
 	
 	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(game, this.game.renderManager.canvas.width / 2, 100, 40, 40));
+	this.gameObjectManager.addObject(new Player(game, 100, -100, 36, 32));
 	
 	// Pause the game
 	this.game.inputManager.addKeyEvent(KeyAction.cancel, function() {
-		_this.isPaused = _this.isPaused ? false : true;
+		_this.isPaused = !_this.isPaused;
+	});
+    
+    /* Debug keys */
+    
+	// Toggle wireframes
+	this.game.inputManager.addKeyEvent(KeyAction.func1, function() {
+		_this.game.renderManager.wireframes = !_this.game.renderManager.wireframes;
 	});
 };
 
 Level.prototype = new Scene();
+
+Level.prototype.loadContent = function(resourceManager) {
+    this.gameObjectManager.loadContent(resourceManager);
+};
 
 Level.prototype.unload = function(callback) {
 	this.game.inputManager.removeKeyEvent(this.game.inputManager.keyAction.cancel);
@@ -34,7 +45,7 @@ Level.prototype.loadTiles = function(levelId) {
 	
 	var levelDefaults = {
 		width: 30,
-		length: 200,
+		length: 500,
 		frequency: 0.2,
 		wavelength: 48,
 		offset: 330
@@ -153,7 +164,6 @@ Level.prototype.loadTiles = function(levelId) {
             }
             if(i == startPos - 1) {
                 data = 1;
-                console.log(data);
             }
             wavelength = levelPrefs.wavelength + (Math.sin(freq1 * startPos + freq2 *  Math.PI / 3) * 32);
             y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
@@ -191,7 +201,6 @@ Level.prototype.loadTiles = function(levelId) {
                     displayType = TileDisplayType.solidGround;
                     if(i == levelDefaults.length - endLength + 7) {
                         data = 2;
-                        console.log(data);
                     }
                 }
                 

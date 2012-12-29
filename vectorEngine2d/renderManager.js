@@ -1,6 +1,7 @@
 var RenderManager = function(canvas) {
 	this.canvas = document.getElementById(canvas);
 	this.context = this.canvas.getContext("2d");
+    this.wireframes = false;
 };
 
 RenderManager.prototype.clear = function(color) {
@@ -62,4 +63,23 @@ RenderManager.prototype.drawText = function(x, y, fillColor, fontStyle, textAlig
 	this.context.textAlign = textAlign;
 	this.context.fillStyle = fillColor;
 	this.context.fillText(text, x, y);
+};
+
+RenderManager.prototype.drawSprite = function(x, y, width, height, image) { 
+    //this.context.drawImage(image, 0, 0, width, height, x, y, width, height);
+    //this.context.drawImage(image, x, y, width, height);
+    this.context.drawImage(image, x, y);
+};
+
+RenderManager.prototype.drawPolysprite = function(points, resource) { 
+	/*this.context.save();
+    
+	this.context.rect(x, y, width, height);
+	this.context.clip();
+    
+    this.context.rect(x, y, this.canvas.width, this.canvas.height);
+	this.context.fillStyle = "red";
+	this.context.fill();
+    
+    this.context.restore();*/
 };

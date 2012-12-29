@@ -3,6 +3,10 @@ var Scene = function(game) {
 	this.isPaused = true;
 };
 
+Scene.prototype.loadContent = function(resourceManager) {
+
+};
+
 Scene.prototype.unload = function(callback) {
 	callback();
 };

@@ -3,6 +3,12 @@ var GameObjectManager = function(game) {
 	this.gameObjects = [];
 };
 
+GameObjectManager.prototype.loadContent = function(resourceManager) {
+    for(var i = 0; i < this.gameObjects.length; i++) {
+		this.gameObjects[i].loadContent(this.game.resourceManager);
+	}
+}
+
 GameObjectManager.prototype.addObject = function(gameObject) {
 	this.gameObjects.push(gameObject);
 };

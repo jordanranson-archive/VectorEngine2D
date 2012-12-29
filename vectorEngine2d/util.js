@@ -16,3 +16,21 @@ Util.extendParams = function(defaultParams, userParams) {
 Util.radToDeg = function(rad) {
 	return rad * (180 / Math.PI);
 };
+
+// Performs an AJAX request
+Util.ajax = function(url, callback) {
+    var request = new XMLHttpRequest();
+    request.open("GET", url, true);
+    request.onreadystatechange = function() {
+        if(request.readyState == 4) {
+            if(request.status == 200 || request.status == 0) {
+                callback(request.responseText);
+            } else if(request.status == 404) {
+                console.warn("Content not found:", request.statusText);
+            } else {
+                console.warn("Error loading content:", request.statusText);
+            }
+        }
+    };
+    request.send(null);
+};

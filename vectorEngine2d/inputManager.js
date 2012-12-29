@@ -14,7 +14,13 @@ var InputManager = function(keyMap) {
 		action5: Key.s,
 		accept: Key.enter,
 		cancel: Key.escape,
-		pause: Key.pause
+		pause: Key.pause,
+        func1: Key.numpad1,
+        func2: Key.numpad2,
+        func3: Key.numpad3,
+        func4: Key.numpad4,
+        func5: Key.numpad5,
+        func6: Key.numpad6
 	};
 	
 	var _this = this;
