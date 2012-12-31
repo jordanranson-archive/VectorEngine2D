@@ -1,9 +1,13 @@
 var Level = function(game, levelId) {
 	var _this = this;
 	this.game = game;
-	this.camera = new Camera(this.game.renderManager.canvas.width / 2, 100);
+	this.renderManager = this.game.renderManager;
+	this.resourceManager = this.game.resourceManager;
+	this.inputManager = this.game.inputManager;
+	this.sceneManager = this.game.sceneManager;
+	this.camera = new Camera(this.renderManager.canvas.width / 2, 100);
 	this.tiles = [];
-	this.gameObjectManager = new GameObjectManager(game);
+	this.gameObjectManager = new GameObjectManager(this);
 	
 	// States
 	this.isPaused = false;
@@ -12,29 +16,27 @@ var Level = function(game, levelId) {
 	this.loadTiles(levelId);
 	
 	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(game, 100, -100, 36, 32));
+	this.gameObjectManager.addObject(new Player(this, 100, -100, 36, 32));
 	
 	// Pause the game
-	this.game.inputManager.addKeyEvent(KeyAction.cancel, function() {
+	this.inputManager.addKeyEvent(KeyAction.cancel, function() {
 		_this.isPaused = !_this.isPaused;
 	});
     
     /* Debug keys */
     
 	// Toggle wireframes
-	this.game.inputManager.addKeyEvent(KeyAction.func1, function() {
-		_this.game.renderManager.wireframes = !_this.game.renderManager.wireframes;
+	this.inputManager.addKeyEvent(KeyAction.func1, function() {
+		_this.renderManager.wireframes = !_this.renderManager.wireframes;
 	});
 };
-
-Level.prototype = new Scene();
 
 Level.prototype.loadContent = function(resourceManager) {
     this.gameObjectManager.loadContent(resourceManager);
 };
 
 Level.prototype.unload = function(callback) {
-	this.game.inputManager.removeKeyEvent(this.game.inputManager.keyAction.cancel);
+	this.inputManager.removeKeyEvent(this.inputManager.keyAction.cancel);
 	callback();
 };
 
@@ -207,7 +209,7 @@ Level.prototype.loadTiles = function(levelId) {
             }
         }
         
-        tile = new Tile((i - (startPos - startLength)) * levelDefaults.width, y, (i - (startPos - startLength)) * levelDefaults.width + levelDefaults.width, y2, type);
+        tile = new Tile(this, (i - (startPos - startLength)) * levelDefaults.width, y, (i - (startPos - startLength)) * levelDefaults.width + levelDefaults.width, y2, type);
         tile.displayType = displayType;
         if(data !== false) {
             tile.data = data;
@@ -217,17 +219,19 @@ Level.prototype.loadTiles = function(levelId) {
 };
 
 Level.prototype.update = function() {
-	this.gameObjectManager.update(this.game);
+	this.gameObjectManager.update();
 };
 
 Level.prototype.draw = function() {
-	for(var i = 0; i < this.tiles.length; i++) {
-		this.tiles[i].draw(this.game.renderManager, this.camera);
-	}
+    // Draw tiles
+	for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
+    
+    // Draw game objects
 	this.gameObjectManager.draw();
 	
+    // Draw pause menu
 	if(this.isPaused) {
-		this.game.renderManager.drawRectangle(0, 0, this.game.renderManager.canvas.width, this.game.renderManager.canvas.height, "transparent", 0, "rgba(0,0,0,0.5)");
-		this.game.renderManager.drawText(this.game.renderManager.canvas.width / 2, this.game.renderManager.canvas.height / 2, "#ffffff", "20pt sans-serif", "center", "Game Paused");
+		this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "rgba(0,0,0,0.5)");
+		this.renderManager.drawText(this.renderManager.canvas.width / 2, this.renderManager.canvas.height / 2, "#ffffff", "20pt sans-serif", "center", "Game Paused");
 	}
 };

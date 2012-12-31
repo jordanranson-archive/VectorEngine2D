@@ -1,6 +1,6 @@
-var Player = function(game, x, y, width, height) {
+var Player = function(scene, x, y, width, height) {
     var _this = this;
-    this.game = game;
+    this.scene = scene;
 	this.x = x;
 	this.y = y;
     this.z = 0;
@@ -25,14 +25,14 @@ var Player = function(game, x, y, width, height) {
 	this.isAlive = false;
     
     // Start jumping
-	this.game.inputManager.addKeyEvent(KeyAction.jump, function() {
+	this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
 		if(_this.isOnGround) {
             _this.isJumping = true;
         }
 	});
         
     // Toggle player passive acceleration
-	this.game.inputManager.addKeyEvent(KeyAction.func2, function() {
+	this.scene.inputManager.addKeyEvent(KeyAction.func2, function() {
         //this.passiveForwardVel = this.passiveForwardVel == -1 ? 0 : -1;
         if(_this.DEBUG.disablePassiveAcl == "undefined") { _this.DEBUG.disablePassiveAcl = true; };
         _this.DEBUG.disablePassiveAcl = !_this.DEBUG.disablePassiveAcl;
@@ -41,7 +41,7 @@ var Player = function(game, x, y, width, height) {
 
 // Load content
 Player.prototype.loadContent = function(resourceManager) {
-    resourceManager.load("jake.png", "player1", ResourceType.image);
+    resourceManager.load("images/jake.png", "player1", ResourceType.image);
 };
 
 // Adds velocity to the player
@@ -50,14 +50,14 @@ Player.prototype.addVelocity = function(x, y) {
 	this.velocityY += y;
 };
 
-Player.prototype.update = function(game) {
+Player.prototype.update = function() {
     // Is player on the ground
     this.isOnGround = !this.isFalling && !this.isJumping;
     
 	if(this.isAlive) {
 		// Accelerate
         if(this.DEBUG.disablePassiveAcl) {
-            if(game.inputManager.isKeyDown(KeyAction.forward)) {
+            if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
                 this.addVelocity(0.65, 0);
             }
         }
@@ -75,13 +75,13 @@ Player.prototype.update = function(game) {
         }
 		
 		// Brake
-		if(game.inputManager.isKeyDown(KeyAction.backward)) {
+		if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
 			this.addVelocity(-0.325, 0);
         }
 			
 		// Jump
         if(this.isJumping) {
-            if(game.inputManager.isKeyDown(KeyAction.jump)) {
+            if(this.scene.inputManager.isKeyDown(KeyAction.jump)) {
                 if(!this.isFalling) {
                     this.isJumping = true;
                 }
@@ -130,9 +130,9 @@ Player.prototype.update = function(game) {
 	var playerPos = adjX / /*levelPrefs.width*/30 >> 0;
 	
 	// Collide with tiles
-    var tile0 = game.sceneManager.scene.tiles[playerPos - 1];
-    var tile1 = game.sceneManager.scene.tiles[playerPos];
-    var tile2 = game.sceneManager.scene.tiles[playerPos + 1];
+    var tile0 = this.scene.tiles[playerPos - 1];
+    var tile1 = this.scene.tiles[playerPos];
+    var tile2 = this.scene.tiles[playerPos + 1];
     
     var run = tile1.x2 - tile1.x1;
     var rise = tile1.y2 - tile1.y1;
@@ -146,7 +146,7 @@ Player.prototype.update = function(game) {
     // Collide with current tile's y
     if(adjY > col && tile1.type != TileType.air) {
         if(this.lastY < col) {
-            if(game.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.passthrough) {
+            if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.passthrough) {
                 this.isFalling = true;
             } else {
                 this.y = col + (this.y - adjY);
@@ -163,7 +163,7 @@ Player.prototype.update = function(game) {
         if(tile0.type != TileType.air
         && this.lastY < tile0.y2 && adjY > tile0.y2 
         && adjX - this.width / 2 < tile0.x2) {
-            if(game.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.passthrough) {
+            if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.passthrough) {
                 this.isFalling = true;
             } else {
                 this.y = (tile0.y2 * 1) + (this.y - adjY);
@@ -176,7 +176,7 @@ Player.prototype.update = function(game) {
         if(tile2.type != TileType.air 
         && this.lastY < tile2.y1 && adjY > tile2.y1 
         && adjX + this.width / 2 > tile2.x1) {
-            if(game.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.passthrough) {
+            if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.passthrough) {
                 this.isFalling = true;
             } else {
                 this.y = (tile2.y1 * 1) + (this.y - adjY);
@@ -187,7 +187,7 @@ Player.prototype.update = function(game) {
     }
     
     // Speed up while going down a slope and holding the down key
-    if(this.isOnSolidGround && game.inputManager.isKeyDown(KeyAction.down)) {
+    if(this.isOnSolidGround && this.scene.inputManager.isKeyDown(KeyAction.down)) {
         var pullVel = 0.2;
         if(this.velocityX > 0 && this.angle > 0 && this.angle <= 45) {
             var vel = this.angle / 25 * 0.3 + 0.1;
@@ -252,7 +252,7 @@ Player.prototype.update = function(game) {
     }
 	
 	// Die when falling off the edge of the world
-	if(adjY > game.renderManager.canvas.height + this.width) {
+	if(adjY > this.scene.renderManager.canvas.height + this.width) {
 		this.isAlive = false;
 	}
 	
@@ -263,16 +263,16 @@ Player.prototype.update = function(game) {
 	}
 	
 	// Collide with right side of level
-	if(this.x + (this.width / 2) >= game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30 - 30) {
-		this.x = game.sceneManager.scene.tiles.length * /*levelPrefs.width*/30 - (this.width / 2) - 30;
+	if(this.x + (this.width / 2) >= this.scene.tiles.length * /*levelPrefs.width*/30 - 30) {
+		this.x = this.scene.tiles.length * /*levelPrefs.width*/30 - (this.width / 2) - 30;
 		this.velocityX = 0;
 	}
 	
 	// Reset when the player dies
 	if(!this.isAlive) {
         if(this.timeDead > 100) {
-            this.x = /*levelStart.x*/game.renderManager.canvas.width / 2;
-            this.y =  /*levelStart.y*/game.sceneManager.scene.tiles[0].y1 - this.height / 2 - 4;
+            this.x = /*levelStart.x*/this.scene.renderManager.canvas.width / 2;
+            this.y =  /*levelStart.y*/this.scene.tiles[0].y1 - this.height / 2 - 4;
             this.velocityX = 0;
             this.velocityY = 0;
             this.passiveForwardVel = 0;
@@ -293,18 +293,17 @@ Player.prototype.update = function(game) {
 	this.lastX = this.x.toFixed(1); // last known y position
 	
 	// Update the camera position
-	game.sceneManager.scene.camera.x = this.x - (game.renderManager.canvas.width / 2);
+	this.scene.camera.x = this.x - (this.scene.renderManager.canvas.width / 2);
 };
 
-Player.prototype.draw = function(renderManager, camera) {
-    if(renderManager.wireframes) {
+Player.prototype.draw = function() {
+    if(this.scene.renderManager.wireframes) {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
         var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
-        renderManager.drawLine(this.x - camera.x, this.y, x - camera.x, y, "#a7c6e0", 2);
+        this.scene.renderManager.drawLine(this.x - this.scene.camera.x, this.y, x - this.scene.camera.x, y, "#a7c6e0", 2);
         //renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
-        renderManager.drawCircle(this.x - camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
+        this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
     } else {
-        renderManager.drawSprite(this.x - camera.x - this.width / 2, this.y - this.height / 2, this.width, this.height, this.game.resourceManager.images["player1"]);
-        console.log(this.game.resourceManager.images["player1"]);
+        this.scene.renderManager.drawSprite(this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
     }
 };

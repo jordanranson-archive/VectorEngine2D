@@ -65,7 +65,7 @@ RenderManager.prototype.drawText = function(x, y, fillColor, fontStyle, textAlig
 	this.context.fillText(text, x, y);
 };
 
-RenderManager.prototype.drawSprite = function(x, y, width, height, image) { 
+RenderManager.prototype.drawSprite = function(image, x, y, width, height) { 
     //this.context.drawImage(image, 0, 0, width, height, x, y, width, height);
     //this.context.drawImage(image, x, y, width, height);
     this.context.drawImage(image, x, y);

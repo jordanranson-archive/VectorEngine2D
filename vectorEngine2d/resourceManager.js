@@ -1,4 +1,5 @@
-var ResourceManager = function() {
+var ResourceManager = function(contentPath) {
+    this.contentPath = contentPath;
 	this.images = {};
 	this.audio = {};
 };
@@ -20,6 +21,6 @@ ResourceManager.prototype.load = function(url, resourceName, resourceType) {
         resource.onload = function() {
             resources[resourceName] = resource;
         };
-        resource.src = "content/images/" + url;
+        resource.src = this.contentPath + url;
     }
 };
