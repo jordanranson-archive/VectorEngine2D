@@ -65,10 +65,23 @@ RenderManager.prototype.drawText = function(x, y, fillColor, fontStyle, textAlig
 	this.context.fillText(text, x, y);
 };
 
-RenderManager.prototype.drawSprite = function(image, x, y, width, height) { 
-    //this.context.drawImage(image, 0, 0, width, height, x, y, width, height);
-    //this.context.drawImage(image, x, y, width, height);
-    this.context.drawImage(image, x, y);
+RenderManager.prototype.drawSprite = function(image, x, y, width, height, sx, sy, swidth, sheight, angle) { 
+    if(typeof(angle) != "undefined") {
+        this.context.save();
+        this.context.rotate(angle);
+    }
+
+    if(typeof(sx) != "undefined") {
+        this.context.drawImage(image, sx, sy, swidth, sheight, x, y, width, height);
+    } else if(typeof(width) != "undefined") {
+        this.context.drawImage(image, x, y, width, height);
+    } else {
+        this.context.drawImage(image, x, y);
+    }
+    
+    if(typeof(angle) != "undefined") {
+        this.context.restore();
+    }
 };
 
 RenderManager.prototype.drawPolysprite = function(points, resource) { 
