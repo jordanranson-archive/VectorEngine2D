@@ -60,7 +60,7 @@ Tile.prototype.draw = function() {
             }
         } else {
             // TODO: Normal rendering
-            
+            this.scene.renderManager.drawSprite(this.scene.resourceManager.images["test-tile"], this.drawingX - this.scene.camera.x, this.drawingY, this.drawingWidth, this.drawingHeight);
         }
     } 
 };

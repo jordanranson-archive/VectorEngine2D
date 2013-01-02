@@ -34,6 +34,7 @@ var Level = function(game, levelId) {
 };
 
 Level.prototype.loadContent = function(resourceManager) {
+    this.resourceManager.load("images/test-tile.png?" + (new Date()).getTime(), "test-tile", ResourceType.image);
     this.gameObjectManager.loadContent(resourceManager);
 };
 
@@ -195,13 +196,9 @@ Level.prototype.generateTiles = function() {
                 y = this.renderManager.canvas.height / 2;
                 y2 = this.renderManager.canvas.height / 2;
                 
-                if(i <= levelDefaults.length - endLength + 5) {
+                if(i <= levelDefaults.length - endLength + 6) {
                     type = TileType.air;
                     displayType = TileDisplayType.none;
-                } else if(i <= levelDefaults.length - endLength + 6) {
-                    type = TileType.passthrough;
-                    displayType = TileDisplayType.railOnly;
-                    y -= 7;
                 } else if(i > levelDefaults.length - endLength + 6) {
                     type = TileType.solid;
                     displayType = TileDisplayType.solidGround;
@@ -242,6 +239,11 @@ Level.prototype.update = function() {
 };
 
 Level.prototype.draw = function() {
+    // Draw background
+    if(!this.renderManager.wireframes) {
+        this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "#0020C0");
+    }
+
     // Draw tiles
 	for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
     
