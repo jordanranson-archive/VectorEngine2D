@@ -16,6 +16,15 @@ var Player = function(scene, x, y, width, height) {
 	this.lastX = x;
     this.passiveForwardVel = 0;
     this.DEBUG = {};
+	this.DEBUG.disablePassiveAcl = true;
+    
+    // Animations 
+    this.animation = {
+        standing: new Animation(this.width * 12, 0, this.width, this.height, 1, 1, 0),
+        walking: new Animation(0, 0, this.width, this.height, 12, 667, 0),
+        running: new Animation(0, this.height, this.width, this.height, 4, 100, 0),
+        jumping: new Animation(this.width * 4, this.height, this.width, this.height, 4, 100, 0)
+    };
 	
 	// States
 	this.isJumping = false;
@@ -33,7 +42,6 @@ var Player = function(scene, x, y, width, height) {
         
     // Toggle player passive acceleration
 	this.scene.inputManager.addKeyEvent(KeyAction.func2, function() {
-        //this.passiveForwardVel = this.passiveForwardVel == -1 ? 0 : -1;
         if(_this.DEBUG.disablePassiveAcl == "undefined") { _this.DEBUG.disablePassiveAcl = true; };
         _this.DEBUG.disablePassiveAcl = !_this.DEBUG.disablePassiveAcl;
 	});
@@ -41,7 +49,7 @@ var Player = function(scene, x, y, width, height) {
 
 // Load content
 Player.prototype.loadContent = function(resourceManager) {
-    resourceManager.load("images/jake.png", "player1", ResourceType.image);
+    resourceManager.load("images/sonic.png", "player1", ResourceType.image);
 };
 
 // Adds velocity to the player
@@ -304,6 +312,19 @@ Player.prototype.draw = function() {
         //renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
         this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
     } else {
-        this.scene.renderManager.drawSprite(this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+        var speed = 0;
+        if(this.isOnGround && this.velocityX.toFixed(1) > 0.1) {
+            speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 10);
+            if(speed > 1.0) { speed = 1.0; }
+			if(speed > 0.9) {
+				this.animation.running.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
+			} else {
+				this.animation.walking.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, speed);
+			}
+        } else if(this.isOnGround) {
+            this.animation.standing.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
+        } else if (this.isJumping || this.isFalling) {
+            this.animation.jumping.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
+        }
     }
 };
