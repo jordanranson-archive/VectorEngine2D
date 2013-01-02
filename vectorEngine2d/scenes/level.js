@@ -12,6 +12,9 @@ var Level = function(game, levelId) {
 	this.isPaused = false;
 	
 	// Load the tiles for the level
+	this.levelPrefs = {
+		tileWidth: 20
+	};
 	this.generateTiles();
 	
 	// Add game objects like the player
@@ -47,10 +50,10 @@ Level.prototype.generateTiles = function() {
 	}
 	
 	var levelDefaults = {
-		width: 30,
+		width: this.levelPrefs.tileWidth,
 		length: 500,
-		frequency: 0.2,
-		wavelength: 32,
+		frequency: 0.1,
+		wavelength: 24,
 		offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.312)
 	};
     var levelPrefs = {
@@ -221,7 +224,7 @@ Level.prototype.generateTiles = function() {
 
 Level.prototype.generateTiles2 = function() {
 	for(var i = 0; i < 500; i++) {
-        tile = new Tile(this, i * 30, this.renderManager.canvas.height / 2, i * 30 + 30, this.renderManager.canvas.height / 2, TileType.solid);
+        tile = new Tile(this, i * this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, i * this.levelPrefs.tileWidth + this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, TileType.solid);
         tile.displayType = TileDisplayType.solidGround;
         this.tiles.push(tile);
 	}

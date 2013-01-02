@@ -11,9 +11,11 @@ var Tile = function(scene, x1, y1, x2, y2, type) {
 };
 
 Tile.prototype.draw = function() {
+	var tileWidth = this.scene.levelPrefs.tileWidth;
+	
     if(this.scene.renderManager.wireframes || !this.scene.renderManager.wireframes) {
         // Is the tile visible on screen
-        if(this.displayType != TileDisplayType.none && this.x1 - this.scene.camera.x + 30 > 0 && this.x2 - this.scene.camera.x - 30 < this.scene.renderManager.canvas.width) {
+        if(this.displayType != TileDisplayType.none && this.x1 - this.scene.camera.x + tileWidth > 0 && this.x2 - this.scene.camera.x - tileWidth < this.scene.renderManager.canvas.width) {
         
             // Ties
             var run = this.x2 - this.x1;
@@ -21,23 +23,11 @@ Tile.prototype.draw = function() {
             var slope = rise / run;
             var intersect = this.y1 - (this.x1 * slope);
             var y = (slope * (this.x1 + run / 2 + run / 4)) + intersect;
-            this.scene.renderManager.drawCircle((this.x1 + run / 2 + run / 4) - this.scene.camera.x, y, 3, "transparent", 0, "#382310");
-            y = (slope * (this.x1 + run / 2 - run / 4)) + intersect;
-            this.scene.renderManager.drawCircle((this.x1 + run / 2 - run / 4) - this.scene.camera.x, y, 3, "transparent", 0, "#382310");
+            //this.scene.renderManager.drawCircle((this.x1 + run / 2 + run / 4) - this.scene.camera.x, y, 2, "transparent", 0, "#382310");
         
             // Solid ground
             if(this.displayType == TileDisplayType.solidGround) {
-
-                if(this.data == 1) {
-                    this.scene.renderManager.drawArc(this.x1 - this.scene.camera.x, this.y2 + 25, 20, -90 * Math.PI / 180, 0, "#333", 6, "transparent");
-                    this.scene.renderManager.drawLine(this.x2 - this.scene.camera.x - 10, this.y2 + 25, this.x2 - this.scene.camera.x - 10, this.y2 + 500, "#333", 6);
-                } else if(this.data == 2) {
-                    this.scene.renderManager.drawArc(this.x2 - this.scene.camera.x, this.y1 + 25, 20, -180 * Math.PI / 180, -90 * Math.PI / 180, "#333", 6, "transparent");
-                    this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x + 10, this.y1 + 25, this.x1 - this.scene.camera.x + 10, this.y1 + 500, "#333", 6);
-                } else {
-                    this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 5, this.x2 - this.scene.camera.x, this.y2 + 5, "#333", 6);
-                }
-                
+				this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 5, this.x2 - this.scene.camera.x, this.y2 + 5, "#333", 6);
             }
             
             // Wooden bridge
@@ -47,8 +37,8 @@ Tile.prototype.draw = function() {
                 this.scene.renderManager.drawLine(this.x2 - this.scene.camera.x, this.y2 + 6, this.x2 - this.scene.camera.x, this.y2 + 500, "#382310", 2);
                 
                 // Crossbeams
-                this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 6, this.x2 - this.scene.camera.x, this.y2 + 45, "#382310", 2);
-                this.scene.renderManager.drawLine(this.x2 - this.scene.camera.x, this.y2 + 6, this.x1 - this.scene.camera.x, this.y1 + 45, "#382310", 2);
+                /*this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 6, this.x2 - this.scene.camera.x, this.y2 + 45, "#382310", 2);
+                this.scene.renderManager.drawLine(this.x2 - this.scene.camera.x, this.y2 + 6, this.x1 - this.scene.camera.x, this.y1 + 45, "#382310", 2);*/
             }
             
             // Rail

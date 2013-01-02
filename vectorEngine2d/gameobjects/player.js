@@ -34,7 +34,7 @@ var Player = function(scene, x, y, width, height) {
     
     // Start jumping
 	this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
-		if(_this.isOnGround) {
+		if(_this.isOnGround && _this.isAlive) {
             _this.isJumping = true;
         }
 	});
@@ -67,21 +67,6 @@ Player.prototype.update = function() {
 			this.addVelocity(-0.65, 0);
 			this.isFacingForwards = false;
         }
-			
-		// Jump
-        if(this.isJumping) {
-            if(this.scene.inputManager.isKeyDown(KeyAction.jump)) {
-                if(!this.isFalling) {
-                    this.isJumping = true;
-                }
-            // Stop jumping
-            } else {
-                if(this.isJumping) {
-                    this.isJumping = false;
-                    jumpDist = 0;
-                }
-            }
-        }
 	}
 
 	this.y += 7.5; // gravity
@@ -113,10 +98,12 @@ Player.prototype.update = function() {
 
 	// Collision point
 	var adjX = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
-	var adjY = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + (this.y + 2); // 2px padding for stroke width
+	var adjY = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
     
+	var tileWidth = this.scene.levelPrefs.tileWidth;
+	
 	// Finds the line the player is going to collide with
-	var playerPos = adjX / /*levelPrefs.width*/30 >> 0;
+	var playerPos = adjX / tileWidth >> 0;
 	
 	// Collide with tiles
     var tile0 = this.scene.tiles[playerPos - 1];
@@ -136,6 +123,8 @@ Player.prototype.update = function() {
     if(adjY > col && tile1.type != TileType.air) {
         if(this.lastY < col) {
             if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.passthrough) {
+				// Fall down through platforms
+				// TODO: Don't let fall if tiles next to this are solid and player is overlapping
                 this.isFalling = true;
             } else {
                 this.y = col + (this.y - adjY);
@@ -153,6 +142,7 @@ Player.prototype.update = function() {
         && this.lastY < tile0.y2 && adjY > tile0.y2 
         && adjX - this.width / 2 < tile0.x2) {
             if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.passthrough) {
+				// Fall down through platforms
                 this.isFalling = true;
             } else {
                 this.y = (tile0.y2 * 1) + (this.y - adjY);
@@ -166,6 +156,7 @@ Player.prototype.update = function() {
         && this.lastY < tile2.y1 && adjY > tile2.y1 
         && adjX + this.width / 2 > tile2.x1) {
             if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.passthrough) {
+				// Fall down through platforms
                 this.isFalling = true;
             } else {
                 this.y = (tile2.y1 * 1) + (this.y - adjY);
@@ -207,7 +198,18 @@ Player.prototype.update = function() {
 	}
 	
 	// Jumping logic
-	if(this.isJumping) {
+	if(this.isJumping && this.isAlive) {
+		if(this.scene.inputManager.isKeyDown(KeyAction.jump)) {
+			if(!this.isFalling) {
+				this.isJumping = true;
+			}
+		// Stop jumping
+		} else {
+			if(this.isJumping) {
+				this.isJumping = false;
+				jumpDist = 0;
+			}
+		}
 		var jumpVel = -18;
 		this.jumpDist += 1;
 		
@@ -229,22 +231,22 @@ Player.prototype.update = function() {
 	}
 	
 	// Collide with left side of level
-	if(this.x - (this.width / 2) <= 30) {
-		this.x = this.width / 2 + 30;
+	if(this.x - (this.width / 2) <= tileWidth) {
+		this.x = this.width / 2 + tileWidth;
 		this.velocityX = 0;
 	}
 	
 	// Collide with right side of level
-	if(this.x + (this.width / 2) >= this.scene.tiles.length * /*levelPrefs.width*/30 - 30) {
-		this.x = this.scene.tiles.length * /*levelPrefs.width*/30 - (this.width / 2) - 30;
+	if(this.x + (this.width / 2) >= this.scene.tiles.length * tileWidth - tileWidth) {
+		this.x = this.scene.tiles.length * tileWidth - (this.width / 2) - tileWidth;
 		this.velocityX = 0;
 	}
 	
 	// Reset when the player dies
 	if(!this.isAlive) {
         if(this.timeDead > 100) {
-            this.x = /*levelStart.x*/this.scene.renderManager.canvas.width / 2;
-            this.y =  /*levelStart.y*/this.scene.tiles[0].y1 - this.height / 2 - 4;
+            this.x = this.scene.renderManager.canvas.width / 2;
+            this.y =  this.scene.tiles[0].y1 - this.height / 2;
             this.velocityX = 0;
             this.velocityY = 0;
             this.passiveForwardVel = 0;
@@ -252,6 +254,7 @@ Player.prototype.update = function() {
             this.isJumping = false;
             this.isFalling = false;
             this.isOnGround = false;
+			this.isFacingForward = true;
             if(this.timeDead > 125) {
                 this.isAlive = true;
                 this.timeDead = 0;
@@ -273,17 +276,17 @@ Player.prototype.draw = function() {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
         var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
         this.scene.renderManager.drawLine(this.x - this.scene.camera.x, this.y, x - this.scene.camera.x, y, "#a7c6e0", 2);
-        //renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
-        this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
+        this.scene.renderManager.drawRectangle((this.x - this.width / 2) - this.scene.camera.x, this.y - this.height / 2, this.width, this.height, "#218ae0", 2, "transparent");
+        this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, this.width / 2, "#218ae0", 2, "transparent");
     } else {
 		// Calculate the animation speed
         var speed = 0;
-		speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 8);
+		speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 9.5);
 		if(speed > 1.0) { speed = 1.0; }
 		
         if(this.isOnGround && (this.velocityX > 0.1 || this.velocityX < -0.1)) {
 			// Walking and running
-			if(speed > 10) {
+			if(speed > 0.9) {
 				this.animation.running.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
 			} else {
 				this.animation.walking.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, speed);
