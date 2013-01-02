@@ -1,10 +1,9 @@
 var Level = function(game, levelId) {
 	var _this = this;
-	this.game = game;
-	this.renderManager = this.game.renderManager;
-	this.resourceManager = this.game.resourceManager;
-	this.inputManager = this.game.inputManager;
-	this.sceneManager = this.game.sceneManager;
+	this.renderManager = game.renderManager;
+	this.resourceManager = game.resourceManager;
+	this.inputManager = game.inputManager;
+	this.sceneManager = game.sceneManager;
 	this.camera = new Camera(this.renderManager.canvas.width / 2, 100);
 	this.tiles = [];
 	this.gameObjectManager = new GameObjectManager(this);
@@ -16,7 +15,7 @@ var Level = function(game, levelId) {
 	this.loadTiles(levelId);
 	
 	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(this, 100, -100, 36, 32));
+	this.gameObjectManager.addObject(new Player(this, 100, -100, 40, 44));
 	
 	// Pause the game
 	this.inputManager.addKeyEvent(KeyAction.cancel, function() {
@@ -49,8 +48,8 @@ Level.prototype.loadTiles = function(levelId) {
 		width: 30,
 		length: 500,
 		frequency: 0.2,
-		wavelength: 48,
-		offset: 330
+		wavelength: 32,
+		offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.312)
 	};
     var levelPrefs = {
 		frequency: levelDefaults.frequency,
@@ -71,18 +70,18 @@ Level.prototype.loadTiles = function(levelId) {
     var endBuffer = 15;
     count = startLength;
     while(true) {
-        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 1) + freq2 *  Math.PI / 3) * 32);
+        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 1) + freq2 *  Math.PI / 3) * 24);
         y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 1), wavelength, levelPrefs.offset);
-        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 32);
+        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 24);
         y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 2), wavelength, levelPrefs.offset);
-        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count) + freq2 *  Math.PI / 3) * 32);
+        wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count) + freq2 *  Math.PI / 3) * 24);
         y3 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count), wavelength, levelPrefs.offset);
         
         // If next tile has no more than +/- 10px difference in height
         if(y == y3 && y2 - y > -10 && y2 - y < 10) {
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 32);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 2) + freq2 *  Math.PI / 3) * 24);
             y3 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 2), wavelength, levelPrefs.offset);
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 3) + freq2 *  Math.PI / 3) * 32);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (count + 3) + freq2 *  Math.PI / 3) * 24);
             y4 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, (count + 3), wavelength, levelPrefs.offset);
             
             // If 2nd next tile has the same slope direction as 1st
@@ -167,15 +166,15 @@ Level.prototype.loadTiles = function(levelId) {
             if(i == startPos - 1) {
                 data = 1;
             }
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * startPos + freq2 *  Math.PI / 3) * 32);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * startPos + freq2 *  Math.PI / 3) * 24);
             y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
             y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, startPos, wavelength, levelPrefs.offset);
 
         // Rest of level
         } else {
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * i + freq2 *  Math.PI / 3) * 32);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * i + freq2 *  Math.PI / 3) * 24);
             y = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i, wavelength, levelPrefs.offset);
-            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (i + 1) + freq2 *  Math.PI / 3) * 32);
+            wavelength = levelPrefs.wavelength + (Math.sin(freq1 * (i + 1) + freq2 *  Math.PI / 3) * 24);
             y2 = getNextPoint(levelPrefs.frequency, levelPrefs.frequency * Math.PI / 3, i + 1, wavelength, levelPrefs.offset);
         }
         
@@ -188,8 +187,8 @@ Level.prototype.loadTiles = function(levelId) {
             
             // Flat surface
             if(i >= levelDefaults.length - endLength) {
-                y = 420;
-                y2 = 420;
+                y = this.renderManager.canvas.height / 2;
+                y2 = this.renderManager.canvas.height / 2;
                 
                 if(i <= levelDefaults.length - endLength + 5) {
                     type = TileType.air;
