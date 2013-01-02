@@ -14,16 +14,14 @@ var Player = function(scene, x, y, width, height) {
     this.timeDead = 100;
 	this.lastY = y;
 	this.lastX = x;
-    this.passiveForwardVel = 0;
     this.DEBUG = {};
-	this.DEBUG.disablePassiveAcl = true;
     
     // Animations 
     this.animation = {
         standing: new Animation(this.width * 12, 0, this.width, this.height, 1, 1, 0),
-        walking: new Animation(0, 0, this.width, this.height, 12, 667, 0),
-        running: new Animation(0, this.height, this.width, this.height, 4, 100, 0),
-        jumping: new Animation(this.width * 4, this.height, this.width, this.height, 4, 100, 0)
+        walking: new Animation(0, 0, this.width, this.height, 12, 10, 0),
+        running: new Animation(0, this.height, this.width, this.height, 4, 5, 0),
+        jumping: new Animation(this.width * 4, this.height, this.width, this.height, 4, 5, 0)
     };
 	
 	// States
@@ -32,6 +30,7 @@ var Player = function(scene, x, y, width, height) {
     this.isOnGround = false;
     this.isOnSolidGround = false;
 	this.isAlive = false;
+	this.isFacingForwards = true;
     
     // Start jumping
 	this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
@@ -39,17 +38,11 @@ var Player = function(scene, x, y, width, height) {
             _this.isJumping = true;
         }
 	});
-        
-    // Toggle player passive acceleration
-	this.scene.inputManager.addKeyEvent(KeyAction.func2, function() {
-        if(_this.DEBUG.disablePassiveAcl == "undefined") { _this.DEBUG.disablePassiveAcl = true; };
-        _this.DEBUG.disablePassiveAcl = !_this.DEBUG.disablePassiveAcl;
-	});
 };
 
 // Load content
 Player.prototype.loadContent = function(resourceManager) {
-    resourceManager.load("images/sonic.png", "player1", ResourceType.image);
+    resourceManager.load("images/sonic.png?" + (new Date()).getTime(), "player1", ResourceType.image);
 };
 
 // Adds velocity to the player
@@ -61,30 +54,18 @@ Player.prototype.addVelocity = function(x, y) {
 Player.prototype.update = function() {
     // Is player on the ground
     this.isOnGround = !this.isFalling && !this.isJumping;
-    
+	
 	if(this.isAlive) {
 		// Accelerate
-        if(this.DEBUG.disablePassiveAcl) {
-            if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
-                this.addVelocity(0.65, 0);
-            }
-        }
-        
-        // Constant forward movement
-        var maxVelocity = 0.65;
-        if(this.passiveForwardVel < maxVelocity) {
-            this.passiveForwardVel += 0.005;
-        }
-        if(this.passiveForwardVel > maxVelocity) {
-            this.passiveForwardVel = maxVelocity;
-        }
-        if(this.passiveForwardVel >= 0 && !this.DEBUG.disablePassiveAcl) {
-            this.addVelocity(this.passiveForwardVel, 0);
-        }
+		if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
+			this.addVelocity(0.65, 0);
+			this.isFacingForwards = true;
+		}
 		
 		// Brake
 		if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
-			this.addVelocity(-0.325, 0);
+			this.addVelocity(-0.65, 0);
+			this.isFacingForwards = false;
         }
 			
 		// Jump
@@ -194,23 +175,6 @@ Player.prototype.update = function() {
         }
     }
     
-    // Speed up while going down a slope and holding the down key
-    if(this.isOnSolidGround && this.scene.inputManager.isKeyDown(KeyAction.down)) {
-        var pullVel = 0.2;
-        if(this.velocityX > 0 && this.angle > 0 && this.angle <= 45) {
-            var vel = this.angle / 25 * 0.3 + 0.1;
-            if(vel > pullVel) { vel = pullVel; }
-            if(vel < 0) { vel = 0; }
-            this.velocityX += vel;
-        }
-        /*if(this.velocityX < 0 && this.angle < 0 && this.angle >= -45) {
-            var vel = (this.angle * -1) / 45 * pullVel;
-            if(vel > pullVel) { vel = pullVel; }
-            if(vel < 0) { vel = 0; }
-            this.velocityX -= vel;
-        }*/
-    }
-    
     // Collide with left tile's x
     if(tile0.type == TileType.solid && adjX - this.width / 2 < tile0.x2 && adjY > tile0.y2) {
         if(this.lastY > tile0.y2) {
@@ -312,18 +276,23 @@ Player.prototype.draw = function() {
         //renderManager.drawRectangle((this.x - this.width / 2) - camera.x, this.y - this.height / 2, this.width, this.height, "#114A93", 2, "transparent");
         this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, this.width / 2, this.isFalling ? "red" : "#218ae0", 2, "transparent");
     } else {
+		// Calculate the animation speed
         var speed = 0;
-        if(this.isOnGround && this.velocityX.toFixed(1) > 0.1) {
-            speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 10);
-            if(speed > 1.0) { speed = 1.0; }
-			if(speed > 0.9) {
+		speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 8);
+		if(speed > 1.0) { speed = 1.0; }
+		
+        if(this.isOnGround && (this.velocityX > 0.1 || this.velocityX < -0.1)) {
+			// Walking and running
+			if(speed > 10) {
 				this.animation.running.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
 			} else {
 				this.animation.walking.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, speed);
 			}
         } else if(this.isOnGround) {
+			// Standing
             this.animation.standing.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
         } else if (this.isJumping || this.isFalling) {
+			// Jumping
             this.animation.jumping.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
         }
     }
