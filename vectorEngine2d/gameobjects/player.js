@@ -1,43 +1,45 @@
-var Player = function(scene, x, y, width, height) {
+var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
     var _this = this;
     this.scene = scene;
-	this.x = x;
-	this.y = y;
+    this.x = x;
+    this.y = y;
     this.z = 0;
-	this.width = width;
-	this.height = height;
-	this.velocityX = 0;
-	this.velocityY = 0;
-	this.angle = 0;
-	this.maxJumpDist = 12;
-	this.jumpDist = 0;
+    this.width = width;
+    this.height = height;
+    this.drawingWidth = drawingWidth;
+    this.drawingHeight = drawingHeight;
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.angle = 0;
+    this.maxJumpDist = 12;
+    this.jumpDist = 0;
     this.timeDead = 100;
-	this.lastY = y;
-	this.lastX = x;
+    this.lastY = y;
+    this.lastX = x;
     this.DEBUG = {};
     
     // Animations 
     this.animation = {
-        standing: new Animation(this.width * 12, 0, this.width, this.height, 1, 1, 0),
-        walking: new Animation(0, 0, this.width, this.height, 12, 10, 0),
-        running: new Animation(0, this.height, this.width, this.height, 4, 5, 0),
-        jumping: new Animation(this.width * 4, this.height, this.width, this.height, 4, 5, 0)
+        standing:    new Animation(this.drawingWidth * 12, 0,           this.drawingWidth, this.drawingHeight, 1, 1, 0),
+        walking:     new Animation(0,               0,           this.drawingWidth, this.drawingHeight, 12, 10, 0),
+        running:     new Animation(0,               this.drawingHeight, this.drawingWidth, this.drawingHeight, 4, 5, 0),
+        jumping:     new Animation(this.drawingWidth * 4,  this.drawingHeight, this.drawingWidth, this.drawingHeight, 4, 5, 0)
     };
-	
-	// States
-	this.isJumping = false;
-	this.isFalling = false;
+    
+    // States
+    this.isJumping = false;
+    this.isFalling = false;
     this.isOnGround = false;
     this.isOnSolidGround = false;
-	this.isAlive = false;
-	this.isFacingForwards = true;
+    this.isAlive = false;
+    this.isFacingForwards = true;
     
     // Start jumping
-	this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
-		if(_this.isOnGround && _this.isAlive) {
+    this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
+        if(_this.isOnGround && _this.isAlive) {
             _this.isJumping = true;
         }
-	});
+    });
 };
 
 // Load content
@@ -47,29 +49,29 @@ Player.prototype.loadContent = function(resourceManager) {
 
 // Adds velocity to the player
 Player.prototype.addVelocity = function(x, y) {
-	this.velocityX += x;
-	this.velocityY += y;
+    this.velocityX += x;
+    this.velocityY += y;
 };
 
 Player.prototype.update = function() {
     // Is player on the ground
     this.isOnGround = !this.isFalling && !this.isJumping;
-	
-	if(this.isAlive) {
-		// Accelerate
-		if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
-			this.addVelocity(0.65, 0);
-			this.isFacingForwards = true;
-		}
-		
-		// Brake
-		if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
-			this.addVelocity(-0.65, 0);
-			this.isFacingForwards = false;
+    
+    if(this.isAlive) {
+        // Accelerate
+        if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
+            this.addVelocity(0.65, 0);
+            this.isFacingForwards = true;
         }
-	}
+        
+        // Brake
+        if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
+            this.addVelocity(-0.65, 0);
+            this.isFacingForwards = false;
+        }
+    }
 
-	this.y += 7.5; // gravity
+    this.y += 7.5; // gravity
 
     // Pull the player down if on a slope
     if(this.isOnGround) {
@@ -89,23 +91,23 @@ Player.prototype.update = function() {
     }
     
     // Add velocity to position
-	this.x += this.velocityX;
-	this.y += this.velocityY;
-	
-	// Decay velocity
-	this.velocityX *= 0.93;
-	this.velocityY *= 0.90;
-
-	// Collision point
-	var adjX = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
-	var adjY = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
+    this.x += this.velocityX;
+    this.y += this.velocityY;
     
-	var tileWidth = this.scene.levelPrefs.tileWidth;
-	
-	// Finds the line the player is going to collide with
-	var playerPos = adjX / tileWidth >> 0;
-	
-	// Collide with tiles
+    // Decay velocity
+    this.velocityX *= 0.93;
+    this.velocityY *= 0.90;
+
+    // Collision point
+    var adjX = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
+    var adjY = ((this.height / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
+    
+    var tileWidth = this.scene.levelPrefs.tileWidth;
+    
+    // Finds the line the player is going to collide with
+    var playerPos = adjX / tileWidth >> 0;
+    
+    // Collide with tiles
     var tile0 = this.scene.tiles[playerPos - 1];
     var tile1 = this.scene.tiles[playerPos];
     var tile2 = this.scene.tiles[playerPos + 1];
@@ -123,8 +125,8 @@ Player.prototype.update = function() {
     if(adjY > col && tile1.type != TileType.air) {
         if(this.lastY < col) {
             if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.passthrough) {
-				// Fall down through platforms
-				// TODO: Don't let fall if tiles next to this are solid and player is overlapping
+                // Fall down through platforms
+                // TODO: Don't let fall if tiles next to this are solid and player is overlapping
                 this.isFalling = true;
             } else {
                 this.y = col + (this.y - adjY);
@@ -142,7 +144,7 @@ Player.prototype.update = function() {
         && this.lastY < tile0.y2 && adjY > tile0.y2 
         && adjX - this.width / 2 < tile0.x2) {
             if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.passthrough) {
-				// Fall down through platforms
+                // Fall down through platforms
                 this.isFalling = true;
             } else {
                 this.y = (tile0.y2 * 1) + (this.y - adjY);
@@ -156,7 +158,7 @@ Player.prototype.update = function() {
         && this.lastY < tile2.y1 && adjY > tile2.y1 
         && adjX + this.width / 2 > tile2.x1) {
             if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.passthrough) {
-				// Fall down through platforms
+                // Fall down through platforms
                 this.isFalling = true;
             } else {
                 this.y = (tile2.y1 * 1) + (this.y - adjY);
@@ -181,72 +183,72 @@ Player.prototype.update = function() {
         }
         //this.isAlive = false;
     }
- 	
-	// Find the y direction the player is moving
-	var yvel;
-	var yfixed = this.y.toFixed(1);
-	if(yfixed < this.lastY) yvel = 1;
-	if(yfixed > this.lastY) yvel = -1;
-	if(yfixed == this.lastY) yvel = 0;
+     
+    // Find the y direction the player is moving
+    var yvel;
+    var yfixed = this.y.toFixed(1);
+    if(yfixed < this.lastY) yvel = 1;
+    if(yfixed > this.lastY) yvel = -1;
+    if(yfixed == this.lastY) yvel = 0;
     
-	// Apply extra gravity to keep player on slope during downward movement
-	// This prevents a bug where the player cannot jump while moving quickly
-	// downwards due to being in a "falling" state.
-	if(this.angle) {
-		if(yvel < 0 && (this.angle < -33 || this.angle > 33) && !this.isJumping) 
-			this.y += 2;
-	}
-	
-	// Jumping logic
-	if(this.isJumping && this.isAlive) {
-		if(this.scene.inputManager.isKeyDown(KeyAction.jump)) {
-			if(!this.isFalling) {
-				this.isJumping = true;
-			}
-		// Stop jumping
-		} else {
-			if(this.isJumping) {
-				this.isJumping = false;
-				jumpDist = 0;
-			}
-		}
-		var jumpVel = -18;
-		this.jumpDist += 1;
-		
-		// Finished jumping
-		if(this.jumpDist > this.maxJumpDist) {
-			this.isJumping = false;
-			this.isFalling = true;
-			this.jumpDist = 0;
-		} else {
-			this.velocityY = jumpVel;
-		}	
-	} else {
+    // Apply extra gravity to keep player on slope during downward movement
+    // This prevents a bug where the player cannot jump while moving quickly
+    // downwards due to being in a "falling" state.
+    if(this.angle) {
+        if(yvel < 0 && (this.angle < -33 || this.angle > 33) && !this.isJumping) 
+            this.y += 2;
+    }
+    
+    // Jumping logic
+    if(this.isJumping && this.isAlive) {
+        if(this.scene.inputManager.isKeyDown(KeyAction.jump)) {
+            if(!this.isFalling) {
+                this.isJumping = true;
+            }
+        // Stop jumping
+        } else {
+            if(this.isJumping) {
+                this.isJumping = false;
+                jumpDist = 0;
+            }
+        }
+        var jumpVel = -18;
+        this.jumpDist += 1;
+        
+        // Finished jumping
+        if(this.jumpDist > this.maxJumpDist) {
+            this.isJumping = false;
+            this.isFalling = true;
+            this.jumpDist = 0;
+        } else {
+            this.velocityY = jumpVel;
+        }    
+    } else {
         this.jumpDist = 0;
     }
-	
-	// Die when falling off the edge of the world
-	if(adjY > this.scene.renderManager.canvas.height + this.width) {
-		this.isAlive = false;
-	}
-	
-	// Collide with left side of level
-	if(this.x - (this.width / 2) <= tileWidth) {
-		this.x = this.width / 2 + tileWidth;
-		this.velocityX = 0;
-	}
-	
-	// Collide with right side of level
-	if(this.x + (this.width / 2) >= this.scene.tiles.length * tileWidth - tileWidth) {
-		this.x = this.scene.tiles.length * tileWidth - (this.width / 2) - tileWidth;
-		this.velocityX = 0;
-	}
-	
-	// Reset when the player dies
-	if(!this.isAlive) {
+    
+    // Die when falling off the edge of the world
+    if(adjY > this.scene.renderManager.canvas.height + this.height) {
+        this.isAlive = false;
+    }
+    
+    // Collide with left side of level
+    if(this.x - (this.width / 2) <= tileWidth) {
+        this.x = this.width / 2 + tileWidth;
+        this.velocityX = 0;
+    }
+    
+    // Collide with right side of level
+    if(this.x + (this.width / 2) >= this.scene.tiles.length * tileWidth - tileWidth) {
+        this.x = this.scene.tiles.length * tileWidth - (this.width / 2) - tileWidth;
+        this.velocityX = 0;
+    }
+    
+    // Reset when the player dies
+    if(!this.isAlive) {
         if(this.timeDead > 100) {
             this.x = this.scene.renderManager.canvas.width / 2;
-            this.y =  this.scene.tiles[0].y1 - this.height / 2;
+            this.y = this.scene.tiles[0].y1 - this.height / 2;
             this.velocityX = 0;
             this.velocityY = 0;
             this.passiveForwardVel = 0;
@@ -254,7 +256,7 @@ Player.prototype.update = function() {
             this.isJumping = false;
             this.isFalling = false;
             this.isOnGround = false;
-			this.isFacingForward = true;
+            this.isFacingForward = true;
             if(this.timeDead > 125) {
                 this.isAlive = true;
                 this.timeDead = 0;
@@ -262,41 +264,52 @@ Player.prototype.update = function() {
         }
         
         this.timeDead++;
-	}
-	
-	this.lastY = this.y.toFixed(1); // last known y position
-	this.lastX = this.x.toFixed(1); // last known y position
-	
-	// Update the camera position
-	this.scene.camera.x = this.x - (this.scene.renderManager.canvas.width / 2);
+    }
+    
+    this.lastY = this.y.toFixed(1); // last known y position
+    this.lastX = this.x.toFixed(1); // last known y position
+    
+    // Update the camera position
+    this.scene.camera.x = this.x - (this.scene.renderManager.canvas.width / 2);
 };
 
 Player.prototype.draw = function() {
+    var spriteX = this.x - this.scene.camera.x;
+    var spriteY = this.y - (this.drawingHeight - this.height) / 2;
+
     if(this.scene.renderManager.wireframes) {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
-        var y = ((this.width / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
-        this.scene.renderManager.drawLine(this.x - this.scene.camera.x, this.y, x - this.scene.camera.x, y, "#a7c6e0", 2);
-        this.scene.renderManager.drawRectangle((this.x - this.width / 2) - this.scene.camera.x, this.y - this.height / 2, this.width, this.height, "#218ae0", 2, "transparent");
-        this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, this.width / 2, "#218ae0", 2, "transparent");
+        var y = ((this.height / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
+        
+        // Angle
+        this.scene.renderManager.drawLine(spriteX, this.y, x - this.scene.camera.x, y, "#a7c6e0", 2);
+        
+        // Drawing box
+        this.scene.renderManager.drawRectangle(spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, this.drawingWidth, this.drawingHeight, "#218ae0", 2, "transparent");
+        
+        // Bounding box
+        this.scene.renderManager.drawRectangle(spriteX - this.width / 2, this.y - this.height / 2, this.width, this.height, "#a7c6e0", 2, "transparent");
+        
+        //this.scene.renderManager.drawCircle(spriteX, this.y, this.drawingWidth / 2, "#218ae0", 2, "transparent");
     } else {
-		// Calculate the animation speed
+        // Calculate the animation speed
         var speed = 0;
-		speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 9.5);
-		if(speed > 1.0) { speed = 1.0; }
-		
+        speed = ((this.velocityX < 0 ? this.velocityX * -1 : this.velocityX) / 9.5);
+        if(speed > 1.0) { speed = 1.0; }
+        
         if(this.isOnGround && (this.velocityX > 0.1 || this.velocityX < -0.1)) {
-			// Walking and running
-			if(speed > 0.9) {
-				this.animation.running.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
-			} else {
-				this.animation.walking.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, speed);
-			}
+            // Walking and running
+            if(speed > 0.9) {
+                this.animation.running.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, 1.0);
+            } else {
+                this.animation.walking.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, speed);
+            }
         } else if(this.isOnGround) {
-			// Standing
-            this.animation.standing.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
+            // Standing
+            this.animation.standing.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, 1.0);
         } else if (this.isJumping || this.isFalling) {
-			// Jumping
-            this.animation.jumping.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], this.x - this.scene.camera.x - this.width / 2, this.y - this.height / 2, 0, 1.0);
+            // Jumping
+            this.animation.jumping.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - 10 - this.drawingHeight / 2, 0, 1.0);
         }
     }
 };

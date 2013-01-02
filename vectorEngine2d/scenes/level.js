@@ -18,7 +18,7 @@ var Level = function(game, levelId) {
 	this.generateTiles();
 	
 	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(this, 100, -100, 40, 44));
+	this.gameObjectManager.addObject(new Player(this, 100, -100, 27, 39, 40, 44)); // x, y, boundingWidth, boundingHeight, width, height
 	
 	// Pause the game
 	this.inputManager.addKeyEvent(KeyAction.cancel, function() {
@@ -213,7 +213,14 @@ Level.prototype.generateTiles = function() {
             }
         }
         
-        tile = new Tile(this, (i - (startPos - startLength)) * levelDefaults.width, y, (i - (startPos - startLength)) * levelDefaults.width + levelDefaults.width, y2, type);
+        tile = new Tile(
+            this, 
+            (i - (startPos - startLength)) * levelDefaults.width, y, // x1, y1
+            (i - (startPos - startLength)) * levelDefaults.width + levelDefaults.width, y2, // x2, y2
+            (i - (startPos - startLength)) * levelDefaults.width, y < y2 ? y : y2, // drawing x, drawing y
+            levelDefaults.width, 500, // drawing width, drawing height
+            type
+        );
         tile.displayType = displayType;
         if(data !== false) {
             tile.data = data;
