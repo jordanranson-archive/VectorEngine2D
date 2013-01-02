@@ -12,7 +12,7 @@ var Level = function(game, levelId) {
 	this.isPaused = false;
 	
 	// Load the tiles for the level
-	this.loadTiles(levelId);
+	this.generateTiles();
 	
 	// Add game objects like the player
 	this.gameObjectManager.addObject(new Player(this, 100, -100, 40, 44));
@@ -39,7 +39,9 @@ Level.prototype.unload = function(callback) {
 	callback();
 };
 
-Level.prototype.loadTiles = function(levelId) {
+Level.prototype.loadTiles = function(levelId) {};
+
+Level.prototype.generateTiles = function() {
 	var getNextPoint = function(frequency, offset, step, width, center) {
 		return (Math.sin(frequency * step + offset) * width + center) >> 0;
 	}
@@ -213,6 +215,14 @@ Level.prototype.loadTiles = function(levelId) {
         if(data !== false) {
             tile.data = data;
         }
+        this.tiles.push(tile);
+	}
+};
+
+Level.prototype.generateTiles2 = function() {
+	for(var i = 0; i < 500; i++) {
+        tile = new Tile(this, i * 30, this.renderManager.canvas.height / 2, i * 30 + 30, this.renderManager.canvas.height / 2, TileType.solid);
+        tile.displayType = TileDisplayType.solidGround;
         this.tiles.push(tile);
 	}
 };
