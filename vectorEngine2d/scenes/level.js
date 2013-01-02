@@ -13,12 +13,12 @@ var Level = function(game, levelId) {
 	
 	// Load the tiles for the level
 	this.levelPrefs = {
-		tileWidth: 20
+		tileWidth: 16
 	};
 	this.generateTiles();
 	
 	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(this, 100, -100, 27, 39, 40, 44)); // x, y, boundingWidth, boundingHeight, width, height
+	this.gameObjectManager.addObject(new Player(this, 100, -100, 28, 38, 40, 44)); // x, y, width, height, drawingWidth, drawingHeight
 	
 	// Pause the game
 	this.inputManager.addKeyEvent(KeyAction.cancel, function() {
