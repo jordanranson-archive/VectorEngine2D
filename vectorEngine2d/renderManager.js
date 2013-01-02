@@ -1,7 +1,20 @@
 var RenderManager = function(canvas) {
-	this.canvas = document.getElementById(canvas);
+	this.canvas = document.createElement("canvas");
+	this.canvas.height = 320;
+	this.canvas.width = 480;
 	this.context = this.canvas.getContext("2d");
+	this.drawingCanvas = document.getElementById(canvas);
+	this.drawingCanvasContext = this.drawingCanvas.getContext("2d");
     this.wireframes = false;
+};
+
+RenderManager.prototype.smoothImageScaling = function(smoothing) {
+	this.context.imageSmoothingEnabled = smoothing;
+	this.context.webkitImageSmoothingEnabled = smoothing;
+	this.context.mozImageSmoothingEnabled = smoothing;
+	this.drawingCanvasContext.imageSmoothingEnabled = smoothing;
+	this.drawingCanvasContext.webkitImageSmoothingEnabled = smoothing;
+	this.drawingCanvasContext.mozImageSmoothingEnabled = smoothing;
 };
 
 RenderManager.prototype.clear = function(color) {
