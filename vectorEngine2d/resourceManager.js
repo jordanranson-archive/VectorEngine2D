@@ -23,4 +23,11 @@ ResourceManager.prototype.load = function(url, resourceName, resourceType) {
         };
         resource.src = this.contentPath + url;
     }
+    if(resourceType == ResourceType.audio) {
+        resource = new Image();
+        resource.onload = function() {
+            resources[resourceName] = resource;
+        };
+        resource.src = this.contentPath + url;
+    }
 };
