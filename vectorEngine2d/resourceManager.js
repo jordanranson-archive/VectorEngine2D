@@ -1,7 +1,7 @@
 var ResourceManager = function(contentPath) {
     this.contentPath = contentPath;
-	this.images = {};
-	this.audio = {};
+    this.images = {};
+    this.audio = {};
 };
 
 // Load resource from URL

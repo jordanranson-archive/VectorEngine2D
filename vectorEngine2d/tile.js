@@ -1,9 +1,9 @@
 var Tile = function(scene, x1, y1, x2, y2, drawingX, drawingY, drawingWidth, drawingHeight, type) {
     this.scene = scene;
-	this.x1 = x1;
-	this.y1 = y1;
-	this.x2 = x2;
-	this.y2 = y2;
+    this.x1 = x1;
+    this.y1 = y1;
+    this.x2 = x2;
+    this.y2 = y2;
     this.drawingX = drawingX;
     this.drawingY = drawingY;
     this.drawingWidth = drawingWidth;
@@ -15,8 +15,8 @@ var Tile = function(scene, x1, y1, x2, y2, drawingX, drawingY, drawingWidth, dra
 };
 
 Tile.prototype.draw = function() {
-	var tileWidth = this.scene.levelPrefs.tileWidth;
-	
+    var tileWidth = this.scene.levelPrefs.tileWidth;
+    
     if(this.displayType != TileDisplayType.none && this.x1 - this.scene.camera.x + tileWidth > 0 && this.x2 - this.scene.camera.x - tileWidth < this.scene.renderManager.canvas.width) {
         // Is the tile visible on screen
         if(this.scene.renderManager.wireframes) {
@@ -38,7 +38,7 @@ Tile.prototype.draw = function() {
                 this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 6, this.x1 - this.scene.camera.x, this.y1 + 500, "#222", 2);
                 this.scene.renderManager.drawLine(this.x2 - this.scene.camera.x, this.y2 + 6, this.x2 - this.scene.camera.x, this.y2 + 500, "#222", 2);
                 
-				this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 3, this.x2 - this.scene.camera.x, this.y2 + 3, "#333", 6);
+                this.scene.renderManager.drawLine(this.x1 - this.scene.camera.x, this.y1 + 3, this.x2 - this.scene.camera.x, this.y2 + 3, "#333", 6);
             }
             
             // Wooden bridge

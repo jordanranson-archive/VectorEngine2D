@@ -1,36 +1,36 @@
 var Level = function(game, levelId) {
-	var _this = this;
-	this.renderManager = game.renderManager;
-	this.resourceManager = game.resourceManager;
-	this.inputManager = game.inputManager;
-	this.sceneManager = game.sceneManager;
-	this.camera = new Camera(this.renderManager.canvas.width / 2, 100);
-	this.tiles = [];
-	this.gameObjectManager = new GameObjectManager(this);
-	
-	// States
-	this.isPaused = false;
-	
-	// Load the tiles for the level
-	this.levelPrefs = {
-		tileWidth: 16
-	};
-	this.generateTiles();
-	
-	// Add game objects like the player
-	this.gameObjectManager.addObject(new Player(this, 100, -100, 28, 38, 40, 44)); // x, y, width, height, drawingWidth, drawingHeight
-	
-	// Pause the game
-	this.inputManager.addKeyEvent(KeyAction.cancel, function() {
-		_this.isPaused = !_this.isPaused;
-	});
+    var _this = this;
+    this.renderManager = game.renderManager;
+    this.resourceManager = game.resourceManager;
+    this.inputManager = game.inputManager;
+    this.sceneManager = game.sceneManager;
+    this.camera = new Camera(this.renderManager.canvas.width / 2, 100);
+    this.tiles = [];
+    this.gameObjectManager = new GameObjectManager(this);
+    
+    // States
+    this.isPaused = false;
+    
+    // Load the tiles for the level
+    this.levelPrefs = {
+        tileWidth: 16
+    };
+    this.generateTiles();
+    
+    // Add game objects like the player
+    this.gameObjectManager.addObject(new Player(this, 100, -100, 28, 38, 40, 44)); // x, y, width, height, drawingWidth, drawingHeight
+    
+    // Pause the game
+    this.inputManager.addKeyEvent(KeyAction.cancel, function() {
+        _this.isPaused = !_this.isPaused;
+    });
     
     /* Debug keys */
     
-	// Toggle wireframes
-	this.inputManager.addKeyEvent(KeyAction.func1, function() {
-		_this.renderManager.wireframes = !_this.renderManager.wireframes;
-	});
+    // Toggle wireframes
+    this.inputManager.addKeyEvent(KeyAction.func1, function() {
+        _this.renderManager.wireframes = !_this.renderManager.wireframes;
+    });
 };
 
 Level.prototype.loadContent = function(resourceManager) {
@@ -39,31 +39,31 @@ Level.prototype.loadContent = function(resourceManager) {
 };
 
 Level.prototype.unload = function(callback) {
-	this.inputManager.removeKeyEvent(this.inputManager.keyAction.cancel);
-	callback();
+    this.inputManager.removeKeyEvent(this.inputManager.keyAction.cancel);
+    callback();
 };
 
 Level.prototype.loadTiles = function(levelId) {};
 
 Level.prototype.generateTiles = function() {
-	var getNextPoint = function(frequency, offset, step, width, center) {
-		return (Math.sin(frequency * step + offset) * width + center) >> 0;
-	}
-	
-	var levelDefaults = {
-		width: this.levelPrefs.tileWidth,
-		length: 500,
-		frequency: 0.1,
-		wavelength: 24,
-		offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.312)
-	};
+    var getNextPoint = function(frequency, offset, step, width, center) {
+        return (Math.sin(frequency * step + offset) * width + center) >> 0;
+    }
+    
+    var levelDefaults = {
+        width: this.levelPrefs.tileWidth,
+        length: 500,
+        frequency: 0.1,
+        wavelength: 24,
+        offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.312)
+    };
     var levelPrefs = {
-		frequency: levelDefaults.frequency,
-		wavelength: levelDefaults.wavelength,
-		offset: levelDefaults.offset
-	};
+        frequency: levelDefaults.frequency,
+        wavelength: levelDefaults.wavelength,
+        offset: levelDefaults.offset
+    };
 
-	var tile, wavelength, y, y2, y3, y4, type, displayType, data, tempPassLength, startPos, endPos;
+    var tile, wavelength, y, y2, y3, y4, type, displayType, data, tempPassLength, startPos, endPos;
     var freq1 = ((Math.random() * 0.15) * 1 + 0.1);
     var freq2 = ((Math.random() * 0.15) * 1 + 0.1);
     var gapLength = 0;
@@ -102,7 +102,7 @@ Level.prototype.generateTiles = function() {
     levelDefaults.length += startPos - startLength;
 
     // Tile creation loop
-	for(var i = startPos - startLength; i < levelDefaults.length; i++) {
+    for(var i = startPos - startLength; i < levelDefaults.length; i++) {
         type = TileType.solid;
         displayType = TileDisplayType.solidGround;
         data = false;
@@ -223,19 +223,19 @@ Level.prototype.generateTiles = function() {
             tile.data = data;
         }
         this.tiles.push(tile);
-	}
+    }
 };
 
 Level.prototype.generateTiles2 = function() {
-	for(var i = 0; i < 500; i++) {
+    for(var i = 0; i < 500; i++) {
         tile = new Tile(this, i * this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, i * this.levelPrefs.tileWidth + this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, TileType.solid);
         tile.displayType = TileDisplayType.solidGround;
         this.tiles.push(tile);
-	}
+    }
 };
 
 Level.prototype.update = function() {
-	this.gameObjectManager.update();
+    this.gameObjectManager.update();
 };
 
 Level.prototype.draw = function() {
@@ -245,14 +245,14 @@ Level.prototype.draw = function() {
     }
 
     // Draw tiles
-	for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
+    for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
     
     // Draw game objects
-	this.gameObjectManager.draw();
-	
+    this.gameObjectManager.draw();
+    
     // Draw pause menu
-	if(this.isPaused) {
-		this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "rgba(0,0,0,0.5)");
-		this.renderManager.drawText(this.renderManager.canvas.width / 2, this.renderManager.canvas.height / 2, "#ffffff", "20pt sans-serif", "center", "Game Paused");
-	}
+    if(this.isPaused) {
+        this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "rgba(0,0,0,0.5)");
+        this.renderManager.drawText(this.renderManager.canvas.width / 2, this.renderManager.canvas.height / 2, "#ffffff", "20pt sans-serif", "center", "Game Paused");
+    }
 };

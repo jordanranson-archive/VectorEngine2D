@@ -1,6 +1,6 @@
 var Scene = function(game) {
-	this.game = game;
-	this.isPaused = true;
+    this.game = game;
+    this.isPaused = true;
 };
 
 Scene.prototype.loadContent = function(resourceManager) {
@@ -8,7 +8,7 @@ Scene.prototype.loadContent = function(resourceManager) {
 };
 
 Scene.prototype.unload = function(callback) {
-	callback();
+    callback();
 };
 
 Scene.prototype.update = function() {

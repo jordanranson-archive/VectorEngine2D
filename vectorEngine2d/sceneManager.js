@@ -1,11 +1,11 @@
 var SceneManager = function(game) {
-	this.game = game;
-	this.scene = new Scene(game);
+    this.game = game;
+    this.scene = new Scene(game);
 };
 
 SceneManager.prototype.loadScene = function(scene) {
-	var _this = this;
-	this.scene.unload(function() {
+    var _this = this;
+    this.scene.unload(function() {
         // Load scene content before loading the scene
         scene.loadContent(_this.game.resourceManager);
         var timer = setInterval(function() {
@@ -18,11 +18,11 @@ SceneManager.prototype.loadScene = function(scene) {
 };
 
 SceneManager.prototype.update = function() {
-	if(!this.scene.isPaused) {
-		this.scene.update();
-	}
+    if(!this.scene.isPaused) {
+        this.scene.update();
+    }
 };
 
 SceneManager.prototype.draw = function() {
-	this.scene.draw();
+    this.scene.draw();
 };
