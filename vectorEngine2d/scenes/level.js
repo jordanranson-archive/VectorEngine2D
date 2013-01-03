@@ -9,7 +9,6 @@ var Level = function(game, levelId) {
     
     // States
     this.isPaused = false;
-    this.isFinishedLoading = false;
     
     // Load the tiles for the level
     this.levelPrefs = {
@@ -52,7 +51,7 @@ Level.prototype.init = function() {
         }
     });
     
-    this.isFinishedLoading = true;
+    this.update();
 };
 
 Level.prototype.loadContent = function() {
@@ -266,8 +265,7 @@ Level.prototype.update = function() {
 
 Level.prototype.draw = function() {
     var images = this.resourceManager.images;
-    
-    if(this.isFinishedLoading) {
+
         // Draw background
         if(!this.renderManager.wireframes) {
             this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "#0020C0");
@@ -289,18 +287,17 @@ Level.prototype.draw = function() {
             this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 7 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
             this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 8 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
             this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 9 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
-        }
 
         // Draw tiles
         for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
         
         // Draw game objects
         this.gameObjectManager.draw();
-        
-        // Draw pause menu
-        if(this.isPaused) {
-            this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "rgba(0,0,0,0.5)");
-            this.renderManager.drawText(this.renderManager.canvas.width / 2, this.renderManager.canvas.height / 2, "#ffffff", "20pt sans-serif", "center", "Game Paused");
-        }
+    }
+    
+    // Draw pause menu
+    if(this.isPaused) {
+        this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "rgba(0,0,0,0.5)");
+        this.renderManager.drawText(this.renderManager.canvas.width / 2, this.renderManager.canvas.height / 2, "#ffffff", "20pt sans-serif", "center", "Game Paused");
     }
 };

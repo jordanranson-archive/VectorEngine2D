@@ -8,8 +8,9 @@ SceneManager.prototype.loadScene = function(scene) {
     this.scene.unload(function() {
         // Load scene content before loading the scene
         scene.loadContent(_this.game.resourceManager);
+        _this.game.resourceManager.runQueue();
         var timer = setInterval(function() {
-            if(document.readyState == "complete") {
+            if(!_this.game.resourceManager.isLoading) {
                 clearInterval(timer);
                 scene.init();
                 _this.scene = scene;
