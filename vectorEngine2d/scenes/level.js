@@ -34,7 +34,10 @@ var Level = function(game, levelId) {
 };
 
 Level.prototype.loadContent = function(resourceManager) {
-    this.resourceManager.load("images/test-tile.png?" + (new Date()).getTime(), "test-tile", ResourceType.image);
+    var timestamp = new Date().getTime();
+    this.resourceManager.load("images/test-tile.png?" + timestamp, "test-tile", ResourceType.image);
+    this.resourceManager.load("images/background-1.png?" + timestamp, "paralax-1", ResourceType.image);
+    this.resourceManager.load("images/background-2.png?" + timestamp, "paralax-2", ResourceType.image);
     this.gameObjectManager.loadContent(resourceManager);
 };
 
@@ -55,7 +58,7 @@ Level.prototype.generateTiles = function() {
         length: 500,
         frequency: 0.1,
         wavelength: 24,
-        offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.312)
+        offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.4)
     };
     var levelPrefs = {
         frequency: levelDefaults.frequency,
@@ -239,9 +242,29 @@ Level.prototype.update = function() {
 };
 
 Level.prototype.draw = function() {
+    var images = this.resourceManager.images;
+    
     // Draw background
     if(!this.renderManager.wireframes) {
         this.renderManager.drawRectangle(0, 0, this.renderManager.canvas.width, this.renderManager.canvas.height, "transparent", 0, "#0020C0");
+        
+        this.renderManager.drawImage(images["paralax-1"], this.camera.x / 8 * -1 - images["paralax-1"].width, 0, images["paralax-1"].width, images["paralax-1"].height);
+        this.renderManager.drawImage(images["paralax-1"], this.camera.x / 8 * -1, 0, images["paralax-1"].width, images["paralax-1"].height);
+        this.renderManager.drawImage(images["paralax-1"], images["paralax-1"].width + this.camera.x / 8 * -1, 0, images["paralax-1"].width, images["paralax-1"].height);
+        this.renderManager.drawImage(images["paralax-1"], images["paralax-1"].width * 2 + this.camera.x / 8 * -1, 0, images["paralax-1"].width, images["paralax-1"].height);
+        this.renderManager.drawImage(images["paralax-1"], images["paralax-1"].width * 3 + this.camera.x / 8 * -1, 0, images["paralax-1"].width, images["paralax-1"].height);
+        
+        this.renderManager.drawImage(images["paralax-2"], this.camera.x / 4 * -1 - images["paralax-2"].width, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 2 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 3 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 4 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 5 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 6 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 7 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 8 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
+        this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 9 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
     }
 
     // Draw tiles

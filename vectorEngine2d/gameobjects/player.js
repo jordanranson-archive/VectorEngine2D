@@ -275,7 +275,7 @@ Player.prototype.update = function() {
 
 Player.prototype.draw = function() {
     var spriteX = this.x - this.scene.camera.x;
-    var spriteY = this.y - (this.drawingHeight - this.height) / 2;
+    var spriteY = this.y - (this.drawingHeight - this.height) / 2 + 3;
 
     if(this.scene.renderManager.wireframes) {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;

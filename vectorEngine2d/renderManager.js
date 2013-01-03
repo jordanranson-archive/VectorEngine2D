@@ -78,6 +78,19 @@ RenderManager.prototype.drawText = function(x, y, fillColor, fontStyle, textAlig
     this.context.fillText(text, x, y);
 };
 
+RenderManager.prototype.drawBackground = function(image, x, y, width, height) { 
+    this.context.fillStyle = this.context.createPattern(image, "repeat");
+    this.context.fillRect(x, y, width, height);
+};
+
+RenderManager.prototype.drawImage = function(image, x, y, width, height) { 
+    if(typeof(width) != "undefined") {
+        this.context.drawImage(image, x, y, width, height);
+    } else {
+        this.context.drawImage(image, x, y);
+    }
+};
+
 RenderManager.prototype.drawSprite = function(image, x, y, width, height, sx, sy, swidth, sheight, angle) { 
     if(typeof(angle) != "undefined") {
         this.context.save();
