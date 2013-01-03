@@ -1,5 +1,4 @@
 var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
-    var _this = this;
     this.scene = scene;
     this.x = x;
     this.y = y;
@@ -33,18 +32,26 @@ var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
     this.isOnSolidGround = false;
     this.isAlive = false;
     this.isFacingForwards = true;
+};
+
+// Initialization
+Player.prototype.init = function() {
+    var _this = this;
     
     // Start jumping
     this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
         if(_this.isOnGround && _this.isAlive) {
             _this.isJumping = true;
+            _this.scene.resourceManager.audio["jump"].play();
         }
     });
 };
 
 // Load content
-Player.prototype.loadContent = function(resourceManager) {
-    resourceManager.load("images/sonic.png?" + (new Date()).getTime(), "player1", ResourceType.image);
+Player.prototype.loadContent = function() {
+    var timestamp = new Date().getTime();
+    this.scene.resourceManager.load("images/sonic.png?" + timestamp, "player1", ResourceType.image);
+    this.scene.resourceManager.load("sounds/jump.wav?" + timestamp, "jump", ResourceType.audio);
 };
 
 // Adds velocity to the player
@@ -257,10 +264,8 @@ Player.prototype.update = function() {
             this.isFalling = false;
             this.isOnGround = false;
             this.isFacingForward = true;
-            if(this.timeDead > 125) {
-                this.isAlive = true;
-                this.timeDead = 0;
-            }
+            this.isAlive = true;
+            this.timeDead = 0;
         }
         
         this.timeDead++;
@@ -274,21 +279,24 @@ Player.prototype.update = function() {
 };
 
 Player.prototype.draw = function() {
+    var renderManager = this.scene.renderManager;
+    var images = this.scene.resourceManager.images;
+    var sounds = this.scene.resourceManager.sounds;
     var spriteX = this.x - this.scene.camera.x;
     var spriteY = this.y - (this.drawingHeight - this.height) / 2 + 3;
 
-    if(this.scene.renderManager.wireframes) {
+    if(renderManager.wireframes) {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
         var y = ((this.height / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
         
         // Angle
-        this.scene.renderManager.drawLine(spriteX, this.y, x - this.scene.camera.x, y, "#a7c6e0", 2);
+        renderManager.drawLine(spriteX, this.y, x - this.scene.camera.x, y, "#a7c6e0", 2);
         
         // Drawing box
-        this.scene.renderManager.drawRectangle(spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, this.drawingWidth, this.drawingHeight, "#218ae0", 2, "transparent");
+        renderManager.drawRectangle(spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, this.drawingWidth, this.drawingHeight, "#218ae0", 2, "transparent");
         
         // Bounding box
-        this.scene.renderManager.drawRectangle(spriteX - this.width / 2, this.y - this.height / 2, this.width, this.height, "#a7c6e0", 2, "transparent");
+        renderManager.drawRectangle(spriteX - this.width / 2, this.y - this.height / 2, this.width, this.height, "#a7c6e0", 2, "transparent");
         
         //this.scene.renderManager.drawCircle(spriteX, this.y, this.drawingWidth / 2, "#218ae0", 2, "transparent");
     } else {
@@ -300,16 +308,16 @@ Player.prototype.draw = function() {
         if(this.isOnGround && (this.velocityX > 0.1 || this.velocityX < -0.1)) {
             // Walking and running
             if(speed > 0.9) {
-                this.animation.running.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, 1.0);
+                this.animation.running.play(renderManager, images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, 1.0);
             } else {
-                this.animation.walking.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, speed);
+                this.animation.walking.play(renderManager, images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, speed);
             }
         } else if(this.isOnGround) {
             // Standing
-            this.animation.standing.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, 1.0);
+            this.animation.standing.play(renderManager, images["player1"], spriteX - this.drawingWidth / 2, spriteY - this.drawingHeight / 2, 0, 1.0);
         } else if (this.isJumping || this.isFalling) {
             // Jumping
-            this.animation.jumping.play(this.scene.renderManager, this.scene.resourceManager.images["player1"], spriteX - this.drawingWidth / 2, spriteY - 10 - this.drawingHeight / 2, 0, 1.0);
+            this.animation.jumping.play(renderManager, images["player1"], spriteX - this.drawingWidth / 2, spriteY - 10 - this.drawingHeight / 2, 0, 1.0);
         }
     }
 };

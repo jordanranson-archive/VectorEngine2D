@@ -3,9 +3,15 @@ var GameObjectManager = function(scene) {
     this.gameObjects = [];
 };
 
-GameObjectManager.prototype.loadContent = function(resourceManager) {
+GameObjectManager.prototype.loadContent = function() {
     for(var i = 0; i < this.gameObjects.length; i++) {
-        this.gameObjects[i].loadContent(this.scene.resourceManager);
+        this.gameObjects[i].loadContent();
+    }
+}
+
+GameObjectManager.prototype.init = function() {
+    for(var i = 0; i < this.gameObjects.length; i++) {
+        this.gameObjects[i].init();
     }
 }
 
