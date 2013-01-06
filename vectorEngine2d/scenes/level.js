@@ -23,7 +23,9 @@ Level.prototype.init = function() {
     var _this = this;
         
     // Generate the level
-    this.generateTiles();
+    this.tiles[0] = this.generateTiles();
+    //this.tiles[0] = this.generateTiles2(250, TileType.solid, TileDisplayType.solidGround);
+    //this.tiles[1] = this.generateTiles3(110, TileType.platform, TileDisplayType.scaffold);
     this.gameObjectManager.init();
     
     // Pause the game
@@ -40,7 +42,7 @@ Level.prototype.init = function() {
     
     // BGM
     this.resourceManager.audio["emerald-hill"].volume = 0.5;
-    this.resourceManager.audio["emerald-hill"].play();
+    //this.resourceManager.audio["emerald-hill"].play();
     
     // Toggle wireframes
     this.inputManager.addKeyEvent(KeyAction.func3, function() {
@@ -49,7 +51,7 @@ Level.prototype.init = function() {
         } else {
             _this.resourceManager.audio["emerald-hill"].pause();
         }
-    });
+    });    
     
     this.update();
 };
@@ -71,6 +73,8 @@ Level.prototype.unload = function(callback) {
 Level.prototype.loadTiles = function(levelId) {};
 
 Level.prototype.generateTiles = function() {
+    var tiles = [];
+    
     var getNextPoint = function(frequency, offset, step, width, center) {
         return (Math.sin(frequency * step + offset) * width + center) >> 0;
     }
@@ -78,8 +82,8 @@ Level.prototype.generateTiles = function() {
     var levelDefaults = {
         width: this.levelPrefs.tileWidth,
         length: 500,
-        frequency: 0.1,
-        wavelength: 24,
+        frequency: 0.2,
+        wavelength: 48,
         offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.4)
     };
     var levelPrefs = {
@@ -93,7 +97,7 @@ Level.prototype.generateTiles = function() {
     var freq2 = ((Math.random() * 0.15) * 1 + 0.1);
     var gapLength = 0;
     var solidLength = 0;
-    var passthroughLength = 0;
+    var platformLength = 0;
     
     // Find a smooth slope to start on
     var startLength = 25;
@@ -136,16 +140,16 @@ Level.prototype.generateTiles = function() {
         if((i > startPos && i < (levelDefaults.length - endLength - endBuffer) // 25: flat end surface, 10: number of tiles before end to keep solid
         && solidLength >= 3 && gapLength == 0 
         && (Math.random() * 20).toFixed() == 0)) {
-            passthroughLength = (Math.random() * 2).toFixed() * 1 + 1;
-            tempPassLength = passthroughLength;
-            gapLength = (Math.random() * 7).toFixed() * 1 + 4 + passthroughLength;
+            platformLength = (Math.random() * 2).toFixed() * 1 + 1;
+            tempPassLength = platformLength;
+            gapLength = (Math.random() * 7).toFixed() * 1 + 4 + platformLength;
             solidLength = 0;
         }
         if(gapLength < 0) { 
             gapLength = 0; 
         }
-        if(passthroughLength < 0) {
-            passthroughLength = 0;
+        if(platformLength < 0) {
+            platformLength = 0;
         }
         if(tempPassLength < 0) {
             tempPassLength = 0;
@@ -154,7 +158,7 @@ Level.prototype.generateTiles = function() {
         // Choose gap or rail
         if(gapLength > 0) {
             // Randomize track
-            if(gapLength == passthroughLength + 1) {
+            if(gapLength == platformLength + 1) {
                 levelPrefs = {
                     frequency: levelDefaults.frequency + ((Math.random() * 0.2) * 1 - 0.1),
                     wavelength: levelDefaults.wavelength + ((Math.random() * 24).toFixed() * 1 - 12),
@@ -166,14 +170,14 @@ Level.prototype.generateTiles = function() {
             
             // Beginning edge of rail
             if(tempPassLength > 0) {
-                type = TileType.passthrough;
+                type = TileType.platform;
                 displayType = TileDisplayType.railOnly;
                 tempPassLength--;
                 
             // End edge of rail
             } else {
-                if(gapLength <= passthroughLength) {
-                    type = TileType.passthrough;
+                if(gapLength <= platformLength) {
+                    type = TileType.platform;
                     displayType = TileDisplayType.railOnly;
                 } else {
                     type = TileType.air;
@@ -182,7 +186,7 @@ Level.prototype.generateTiles = function() {
                 gapLength--;
             }
         } else {
-            //type = (i % 4 == 0 || i % 4 == 1) ? TileType.solid : TileType.passthrough;
+            //type = (i % 4 == 0 || i % 4 == 1) ? TileType.solid : TileType.platform;
             type = TileType.oneway;
             displayType = TileDisplayType.scaffold;
             solidLength++;
@@ -212,7 +216,7 @@ Level.prototype.generateTiles = function() {
         // End of level
         if(i >= levelDefaults.length - endLength - 2) {
             if(i < levelDefaults.length - endLength) {
-                type = TileType.passthrough;
+                type = TileType.platform;
                 displayType = TileDisplayType.railOnly;
             }
             
@@ -247,16 +251,51 @@ Level.prototype.generateTiles = function() {
         if(data !== false) {
             tile.data = data;
         }
-        this.tiles.push(tile);
+        tiles.push(tile);
     }
+    
+    return tiles;
 };
 
 Level.prototype.generateTiles2 = function() {
+    var tiles = [];
     for(var i = 0; i < 500; i++) {
-        tile = new Tile(this, i * this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, i * this.levelPrefs.tileWidth + this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, TileType.solid);
+        tile = new Tile(
+            this, 
+            i * this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2, 
+            i * this.levelPrefs.tileWidth + this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2,
+            i * this.levelPrefs.tileWidth, this.renderManager.canvas.height / 2,
+            this.levelPrefs.tileWidth, 500,
+            TileType.solid
+        );
         tile.displayType = TileDisplayType.solidGround;
-        this.tiles.push(tile);
+        tiles.push(tile);
     }
+    return tiles;
+};
+
+Level.prototype.generateTiles3 = function(height, type, displayType) {
+    var tiles = [];
+    var tile;
+    var adjHeight = height;
+    var distance = 25 + (Math.random() * 6 - 3 >> 0);
+    for(var i = 0; i < 500; i++) {
+        if(i % distance === 0) {
+            distance = 25 + (Math.random() * 6 - 3 >> 0);
+            adjHeight = height + (Math.random() * 60 - 30 >> 0);
+        }
+        tile = new Tile(
+            this, 
+            i * this.levelPrefs.tileWidth, adjHeight, 
+            i * this.levelPrefs.tileWidth + this.levelPrefs.tileWidth, adjHeight,
+            i * this.levelPrefs.tileWidth, adjHeight,
+            this.levelPrefs.tileWidth, 500,
+            type
+        );
+        tile.displayType = displayType;
+        tiles.push(tile);
+    }
+    return tiles;
 };
 
 Level.prototype.update = function() {
@@ -290,7 +329,11 @@ Level.prototype.draw = function() {
     }
 
     // Draw tiles
-    for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
+    for(var x = this.tiles.length - 1; x >= 0; x--) { 
+        for(var y = 0; y < this.tiles[x].length; y++) { 
+            this.tiles[x][y].draw(); 
+        }
+    }
     
     // Draw game objects
     this.gameObjectManager.draw();
