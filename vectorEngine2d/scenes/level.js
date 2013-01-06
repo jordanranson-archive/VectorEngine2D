@@ -287,13 +287,13 @@ Level.prototype.draw = function() {
             this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 7 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
             this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 8 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
             this.renderManager.drawImage(images["paralax-2"], images["paralax-2"].width * 9 + this.camera.x / 4 * -1, this.renderManager.canvas.height - images["paralax-2"].height, images["paralax-2"].width, images["paralax-2"].height);
-
-        // Draw tiles
-        for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
-        
-        // Draw game objects
-        this.gameObjectManager.draw();
     }
+
+    // Draw tiles
+    for(var i = 0; i < this.tiles.length; i++) { this.tiles[i].draw(); }
+    
+    // Draw game objects
+    this.gameObjectManager.draw();
     
     // Draw pause menu
     if(this.isPaused) {
