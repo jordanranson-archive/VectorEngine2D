@@ -23,9 +23,9 @@ Level.prototype.init = function() {
     var _this = this;
         
     // Generate the level
-    //this.tiles[0] = this.generateTiles();
-    this.tiles[0] = this.generateTiles3(250, TileType.solid, TileDisplayType.solidGround);
-    this.tiles[1] = this.generateTiles3(110, TileType.platform, TileDisplayType.scaffold);
+    this.tiles[0] = this.generateTiles();
+    //this.tiles[0] = this.generateTiles3(250, TileType.solid, TileDisplayType.solidGround);
+    //this.tiles[1] = this.generateTiles3(110, TileType.solid, TileDisplayType.scaffold);
     this.gameObjectManager.init();
     
     // Pause the game
@@ -82,8 +82,8 @@ Level.prototype.generateTiles = function() {
     var levelDefaults = {
         width: this.levelPrefs.tileWidth,
         length: 500,
-        frequency: 0.2,
-        wavelength: 48,
+        frequency: 0.1,
+        wavelength: 24,
         offset: this.renderManager.canvas.height - (this.renderManager.canvas.height * 0.4)
     };
     var levelPrefs = {
@@ -171,14 +171,14 @@ Level.prototype.generateTiles = function() {
             // Beginning edge of rail
             if(tempPassLength > 0) {
                 type = TileType.platform;
-                displayType = TileDisplayType.railOnly;
+                displayType = TileDisplayType.scaffold;
                 tempPassLength--;
                 
             // End edge of rail
             } else {
                 if(gapLength <= platformLength) {
                     type = TileType.platform;
-                    displayType = TileDisplayType.railOnly;
+                    displayType = TileDisplayType.scaffold;
                 } else {
                     type = TileType.air;
                     displayType = TileDisplayType.none;
@@ -186,9 +186,9 @@ Level.prototype.generateTiles = function() {
                 gapLength--;
             }
         } else {
-            //type = (i % 4 == 0 || i % 4 == 1) ? TileType.solid : TileType.platform;
-            type = TileType.oneway;
-            displayType = TileDisplayType.scaffold;
+            //type = (i % 4 == 0 || i % 4 == 1) ? TileType.solid : TileType.solid;
+            type = TileType.solid;
+            displayType = TileDisplayType.solidGround;
             solidLength++;
         }
         
@@ -216,8 +216,8 @@ Level.prototype.generateTiles = function() {
         // End of level
         if(i >= levelDefaults.length - endLength - 2) {
             if(i < levelDefaults.length - endLength) {
-                type = TileType.platform;
-                displayType = TileDisplayType.railOnly;
+                type = TileType.solid;
+                displayType = TileDisplayType.solidGround;
             }
             
             // Flat surface

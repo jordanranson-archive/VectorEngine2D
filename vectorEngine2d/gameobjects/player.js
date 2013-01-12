@@ -85,17 +85,11 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
     // Collide with current tile's y
     if(adjY > col && tile1.type != TileType.air) {
         if(this.lastY < col) {
-            if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile1.type == TileType.platform) {
-                // Fall down through platforms
-                // TODO: Don't let fall if tiles[0] next to this are solid and player is overlapping
-                this.isFalling = true;
-            } else {
-                console.log("collide y", tileLayer);
-                this.tempY = col + (this.tempY - adjY);
-                adjY = col;
-                this.isFalling = false;
-                this.isOnSolidGround = (tile1.type == TileType.solid || tile1.type == TileType.oneway) && this.isOnGround;
-            }
+            console.log("collide y", tileLayer);
+            this.tempY = col + (this.tempY - adjY);
+            adjY = col;
+            this.isFalling = false;
+            this.isOnSolidGround = (tile1.type == TileType.solid || tile1.type == TileType.oneway) && this.isOnGround;
         }
     } else {
         if(!this.isJumping) {
@@ -106,32 +100,22 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
         if(tile0.type != TileType.air
         && this.lastY < tile0.y2 && adjY > tile0.y2 
         && adjX - this.width / 2 < tile0.x2) {
-            if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile0.type == TileType.platform) {
-                // Fall down through platforms
-                this.isFalling = true;
-            } else {
-                console.log("collide prev y", tileLayer);
-                this.tempY = (tile0.y2 * 1) + (this.tempY - adjY);
-                adjY = tile0.y2;
-                this.isFalling = false;
-                this.isOnSolidGround = (tile0.type == TileType.solid || tile0.type == TileType.oneway) && this.isOnGround;
-            }
+            console.log("collide prev y", tileLayer);
+            this.tempY = (tile0.y2 * 1) + (this.tempY - adjY);
+            adjY = tile0.y2;
+            this.isFalling = false;
+            this.isOnSolidGround = (tile0.type == TileType.solid || tile0.type == TileType.oneway) && this.isOnGround;
         }
         
         // Collide with right tile's y
         if(tile2.type != TileType.air 
         && this.lastY < tile2.y1 && adjY > tile2.y1 
         && adjX + this.width / 2 > tile2.x1) {
-            if(this.scene.inputManager.isKeyDown(KeyAction.down) && tile2.type == TileType.platform) {
-                // Fall down through platforms
-                this.isFalling = true;
-            } else {
-                console.log("collide next y", tileLayer);
-                this.tempY = (tile2.y1 * 1) + (this.tempY - adjY);
-                adjY = tile2.y1;
-                this.isFalling = false;
-                this.isOnSolidGround = (tile2.type == TileType.solid || tile2.type == TileType.oneway) && this.isOnGround;
-            }
+            console.log("collide next y", tileLayer);
+            this.tempY = (tile2.y1 * 1) + (this.tempY - adjY);
+            adjY = tile2.y1;
+            this.isFalling = false;
+            this.isOnSolidGround = (tile2.type == TileType.solid || tile2.type == TileType.oneway) && this.isOnGround;
         }
     }
     
@@ -335,6 +319,7 @@ Player.prototype.draw = function() {
         
         // True center
         renderManager.drawCircle(this.x - this.scene.camera.x, this.lastY, 2, "transparent", 0, "#218ae0");
+        renderManager.drawCircle(this.DEBUG.adjX - this.scene.camera.x, this.lastAdjY, 2, "transparent", 0, "yellow");
     } else {
         // Calculate the animation speed
         var speed = 0;
