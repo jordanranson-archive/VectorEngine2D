@@ -81,12 +81,20 @@ Player.prototype.collide = function() {
         // Tile isn't air
             // Collide right
             if(this.lastX < this.tempX) {
-            
+                if((this.tempX + this.width > tile[2].x && tile[2].type !== TileType.air)
+                || (this.tempX + this.width > tile[3].x && tile[3].type !== TileType.air)) {
+                    this.tempX = tile[2].x - this.width;
+                    this.velocityX = 0;
+                }
             }
             
             // Collide left
             if(this.lastX > this.tempX) {
-            
+                if((this.tempX < tile[8].x + tile[8].width && tile[8].type !== TileType.air)
+                || (this.tempX < tile[7].x + tile[8].width && tile[7].type !== TileType.air)) {
+                    this.tempX = tile[8].x + tile[8].width;
+                    this.velocityX = 0;
+                }
             }
             
             // Collide down
@@ -211,7 +219,7 @@ Player.prototype.draw = function() {
         for(var i = 0; i < this.DEBUG.tile.length; i++) {
             renderManager.drawText(this.DEBUG.tile[i].x - this.scene.camera.x + 8, this.DEBUG.tile[i].y + 12, "#444", "8pt sans-serif", "center", i);
             renderManager.drawRectangle(this.DEBUG.tile[i].x - this.scene.camera.x, this.DEBUG.tile[i].y, 16, 16, "#666", 1, "transparent");
-       }
+        }
     } else {
         // Calculate the animation speed
         var speed = 0;
