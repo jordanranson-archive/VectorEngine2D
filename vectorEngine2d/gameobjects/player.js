@@ -60,15 +60,23 @@ Player.prototype.addVelocity = function(x, y) {
 };
 
 Player.prototype.collide = function() {
-    var posX = (this.x / 16).toFixed();
-    var posY = (this.y / 16).toFixed();
+    var posX = Number((this.x / 16).toFixed());
+    var posY = Number((this.y / 16).toFixed());
     var tile = [];
     
     // Tiles exist
     if(this.scene.tiles[posY] && this.scene.tiles[posY][posX]) {
         tile[0] = this.scene.tiles[posY][posX];
-        this.DEBUG.tileX = tile.x;
-        this.DEBUG.tileY = tile.y;
+        tile[1] = this.scene.tiles[posY][posX+1];
+        tile[2] = this.scene.tiles[posY-1][posX+1];
+        tile[3] = this.scene.tiles[posY-2][posX+1];
+        tile[4] = this.scene.tiles[posY-3][posX+1];
+        tile[5] = this.scene.tiles[posY-3][posX];
+        tile[6] = this.scene.tiles[posY-3][posX-1];
+        tile[7] = this.scene.tiles[posY-2][posX-1];
+        tile[8] = this.scene.tiles[posY-1][posX-1];
+        tile[9] = this.scene.tiles[posY][posX-1];
+        this.DEBUG.tile = tile;
         
         // Tile isn't air
             // Collide right
@@ -92,13 +100,13 @@ Player.prototype.collide = function() {
             }
             
             // collide up
-            /*if(this.lastY > this.tempY) {
-                if(this.tempY - this.height < tile.y + tile.height && tile.type !== TileType.air) {
-                    this.tempY = tile.y + tile.height - this.height;
+            if(this.lastY > this.tempY) {
+                if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type !== TileType.air) {
+                    this.tempY = tile[5].y + tile[5].height + this.height;
                     this.isFalling = true;
                     this.isJumping = false;
                 }
-            }*/
+            }
     }
 };
 
@@ -200,7 +208,10 @@ Player.prototype.draw = function() {
         renderManager.drawRectangle(this.x - this.scene.camera.x, this.y - this.height, this.width, this.height, "transparent", 0, "#218ae0");
         renderManager.drawCircle(this.x - this.scene.camera.x, this.y, 2, "transparent", 0, "magenta");
         
-        renderManager.drawRectangle(this.DEBUG.tileX - this.scene.camera.x, this.DEBUG.tileY, 16, 16, "red", 1, "transparent");
+        for(var i = 0; i < this.DEBUG.tile.length; i++) {
+            renderManager.drawText(this.DEBUG.tile[i].x - this.scene.camera.x + 8, this.DEBUG.tile[i].y + 12, "#444", "8pt sans-serif", "center", i);
+            renderManager.drawRectangle(this.DEBUG.tile[i].x - this.scene.camera.x, this.DEBUG.tile[i].y, 16, 16, "#666", 1, "transparent");
+       }
     } else {
         // Calculate the animation speed
         var speed = 0;
