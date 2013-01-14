@@ -5,7 +5,7 @@ var RenderManager = function(canvas) {
     this.context = this.canvas.getContext("2d");
     this.drawingCanvas = document.getElementById(canvas);
     this.drawingCanvasContext = this.drawingCanvas.getContext("2d");
-    this.wireframes = false;
+    this.wireframes = true;
 };
 
 RenderManager.prototype.smoothImageScaling = function(smoothing) {

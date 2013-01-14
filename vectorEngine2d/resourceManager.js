@@ -2,14 +2,15 @@ var ResourceManager = function(contentPath) {
     this.contentPath = contentPath;
     this.images = {};
     this.audio = {};
+    this.generic = {};
     this.queue = [];
     
     this.isLoading = false;
 };
 
 // Add a resource to the load queue
-ResourceManager.prototype.load = function(url, resourceName, resourceType) {
-    var resource = {url: url, resourceName: resourceName, resourceType: resourceType};
+ResourceManager.prototype.load = function(url, resourceName, resourceType, callback) {
+    var resource = {url: url, resourceName: resourceName, resourceType: resourceType, callback: callback};
     this.queue.push(resource);
 };
 
@@ -51,6 +52,7 @@ ResourceManager.prototype.loadResource = function(resourceDefn, num) {
         resource.addEventListener("load", function() {
             resources[resourceDefn.resourceName] = resource;
             _this.runQueue(num + 1);
+            if(resourceDefn.callback) { resourceDefn.callback(); };
         });
         resource.src = this.contentPath + resourceDefn.url;
     }
@@ -68,8 +70,41 @@ ResourceManager.prototype.loadResource = function(resourceDefn, num) {
         resource.addEventListener("canplaythrough", function() {
             resources[resourceDefn.resourceName] = resource;
             _this.runQueue(num + 1);
+            if(resourceDefn.callback) { resourceDefn.callback(); };
         });
         resource.src = this.contentPath + resourceDefn.url;
         resource.load();
+    }
+    
+    // Plain text
+    if(resourceDefn.resourceType === ResourceType.text) {
+        // Check to see if resource has already been loaded
+        var resources = this.generic;
+        for (var prop in resources) {
+            if(prop == resourceDefn.resourceName) { return; }
+        }
+        
+        // Create, load and store resource
+        Util.ajax(this.contentPath + resourceDefn.url, function(responseText) {
+            resources[resourceDefn.resourceName] = responseText;
+            _this.runQueue(num + 1);
+            if(resourceDefn.callback) { resourceDefn.callback(); };
+        });
+    }
+    
+    // JSON
+    if(resourceDefn.resourceType === ResourceType.json) {
+        // Check to see if resource has already been loaded
+        var resources = this.generic;
+        for (var prop in resources) {
+            if(prop == resourceDefn.resourceName) { return; }
+        }
+        
+        // Create, load and store resource
+        Util.ajax(this.contentPath + resourceDefn.url, function(responseText) {
+            resources[resourceDefn.resourceName] = JSON.parse(responseText);
+            _this.runQueue(num + 1);
+            if(resourceDefn.callback) { resourceDefn.callback(); };
+        });
     }
 };
