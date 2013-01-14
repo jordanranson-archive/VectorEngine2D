@@ -12,12 +12,13 @@ var Level = function(game, levelId) {
     this.isPaused = false;
 
     // Add game objects like the player
-    this.gameObjectManager.addObject(new Player(this, 100, -100, 28, 38, 40, 44)); // x, y, width, height, drawingWidth, drawingHeight
+    this.gameObjectManager.addObject(new Player(this, 128, 128, 16, 32, 16, 32)); // x, y, width, height, drawingWidth, drawingHeight
 };
 
 Level.prototype.init = function() {
     var _this = this;
     this.loadTiles();
+    this.gameObjectManager.init();
     
     // Pause the game
     this.inputManager.addKeyEvent(KeyAction.cancel, function() {
@@ -49,12 +50,13 @@ Level.prototype.loadTiles = function() {
     var levelData = this.resourceManager.generic["test-level"];
     var tileRows = levelData.match(/[^\r\n]+/g);
     var tileCols;
-    var tiles = [];
+    var tiles;
     var tile;
     var tileSize = 16;
     var tileType;
     for(var y = 0; y < tileRows.length; y++) {
         tileCols = tileRows[y].split('');
+        tiles = [];
         for(var x = 0; x < tileCols.length; x++) {
             tile = new Tile(this,
                 x * tileSize, y * tileSize, 
@@ -63,9 +65,8 @@ Level.prototype.loadTiles = function() {
             );
             tiles.push(tile);
         }
+        this.tiles.push(tiles);
     }
-    console.log(tiles);
-    this.tiles = tiles;
 };
 
 Level.prototype.update = function() {
@@ -75,9 +76,11 @@ Level.prototype.update = function() {
 Level.prototype.draw = function() {
     var images = this.resourceManager.images;
 
-    // Draw background
-    for(var i = 0; i < this.tiles.length; i++) {
-        this.tiles[i].draw();
+    // Draw tiles
+    for(var y = 0; y < this.tiles.length; y++) {
+        for(var x = 0; x < this.tiles[y].length; x++) {
+            this.tiles[y][x].draw();
+        }
     }
 
     // Draw game objects
