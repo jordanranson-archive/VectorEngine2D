@@ -23,10 +23,13 @@ Level.prototype.init = function() {
     var _this = this;
         
     // Generate the level
-    this.tiles[0] = this.generateTiles();
-    //this.tiles[0] = this.generateTiles3(250, TileType.solid, TileDisplayType.solidGround);
-    //this.tiles[1] = this.generateTiles3(110, TileType.solid, TileDisplayType.scaffold);
-    this.gameObjectManager.init();
+    if(window.location.hash == "#sine") {
+        this.tiles[0] = this.generateTiles();
+    } else {
+        this.tiles[0] = this.generateTiles3(250, TileType.solid, TileDisplayType.solidGround);
+        this.tiles[1] = this.generateTiles3(110, TileType.platform, TileDisplayType.scaffold);
+        this.gameObjectManager.init();
+    }
     
     // Pause the game
     this.inputManager.addKeyEvent(KeyAction.cancel, function() {

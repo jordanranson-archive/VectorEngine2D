@@ -85,7 +85,6 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
     // Collide with current tile's y
     if(adjY > col && tile1.type != TileType.air) {
         if(this.lastY < col) {
-            console.log("collide y", tileLayer);
             this.tempY = col + (this.tempY - adjY);
             adjY = col;
             this.isFalling = false;
@@ -98,9 +97,8 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
         
         // Collide with left tile's y
         if(tile0.type != TileType.air
-        && this.lastY < tile0.y2 && adjY > tile0.y2 
+        && adjY >= tile0.y2 
         && adjX - this.width / 2 < tile0.x2) {
-            console.log("collide prev y", tileLayer);
             this.tempY = (tile0.y2 * 1) + (this.tempY - adjY);
             adjY = tile0.y2;
             this.isFalling = false;
@@ -109,9 +107,8 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
         
         // Collide with right tile's y
         if(tile2.type != TileType.air 
-        && this.lastY < tile2.y1 && adjY > tile2.y1 
+        && adjY >= tile2.y1 
         && adjX + this.width / 2 > tile2.x1) {
-            console.log("collide next y", tileLayer);
             this.tempY = (tile2.y1 * 1) + (this.tempY - adjY);
             adjY = tile2.y1;
             this.isFalling = false;
@@ -121,8 +118,7 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
     
     // Collide with left tile's x
     if(tile0.type == TileType.solid && adjX - this.width / 2 < tile0.x2 && adjY > tile0.y2) {
-        if(this.lastY > tile0.y2) {
-            console.log("collide left x", tileLayer);
+        if(adjY > tile0.y2) {
             this.tempX = tile0.x2 + this.width / 2;
             this.velocityX = 0;
         }
@@ -131,8 +127,7 @@ Player.prototype.collide = function(adjX, adjY, tileLayer) {
     
     // Collide with right tile's x
     if(tile2.type == TileType.solid && adjX + this.width / 2 > tile2.x1 && adjY > tile2.y1) {
-        if(this.lastY > tile2.y1) {
-            console.log("collide right x", tileLayer);
+        if(adjY > tile2.y1) {
             this.tempX = tile2.x1 - this.width / 2;
             this.velocityX = 0;
         }
