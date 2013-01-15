@@ -10,7 +10,7 @@ var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
     this.velocityX = 0;
     this.velocityY = 0;
     this.angle = 0;
-    this.maxJumpDist = 12;
+    this.maxJumpDist = 8;
     this.jumpDist = 0;
     this.timeDead = 100;
     this.lastX = x - 1;
@@ -205,7 +205,7 @@ Player.prototype.update = function() {
                 this.jumpDist = 0;
             }
         }
-        var jumpVel = -13;
+        var jumpVel = -15;
         this.jumpDist++;
         
         // Finished jumping
