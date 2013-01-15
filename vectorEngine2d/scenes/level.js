@@ -61,7 +61,7 @@ Level.prototype.loadTiles = function() {
             tile = new Tile(this,
                 x * tileSize, y * tileSize, 
                 tileSize, tileSize, 
-                tileCols[x]*1, tileCols[x]*1
+                tileCols[x]*1, tileCols[x]*1 === 0 ? TileDisplayType.none : TileDisplayType.normal
             );
             tiles.push(tile);
         }
