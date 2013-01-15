@@ -112,6 +112,16 @@ Player.prototype.collide = function() {
             } else if(this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type !== TileType.air) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
+                
+            // Collide with the bottom right tile when moving right           
+            } else if(this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type !== TileType.air) {
+                this.tempY = tile[1].y;
+                this.isFalling = false;    
+                
+            // Collide with the bottom left tile when moving left           
+            } else if(this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type !== TileType.air) {
+                this.tempY = tile[9].y;
+                this.isFalling = false;
             
             // Fall
             } else {
