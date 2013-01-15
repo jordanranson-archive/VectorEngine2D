@@ -104,22 +104,22 @@ Player.prototype.collide = function() {
                 this.isFalling = false;
             
             // Collide with the bottom right tile when moving left
-            } else if(this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type !== TileType.air) {
+            } else if(this.tempY > tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type !== TileType.air) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;
             
             // Collide with the bottom left tile when moving right            
-            } else if(this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type !== TileType.air) {
+            } else if(this.tempY > tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type !== TileType.air) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
                 
             // Collide with the bottom right tile when moving right           
-            } else if(this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type !== TileType.air) {
+            } else if(this.tempY > tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type !== TileType.air) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;    
                 
             // Collide with the bottom left tile when moving left           
-            } else if(this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type !== TileType.air) {
+            } else if(this.tempY > tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type !== TileType.air) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
             
@@ -129,10 +129,35 @@ Player.prototype.collide = function() {
             }
         }
         
-        // collide up
+        // Collide up
         if(this.lastY > this.tempY) {
+            // Normal collision
             if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type !== TileType.air) {
                 this.tempY = tile[5].y + tile[5].height + this.height;
+                this.isFalling = true;
+                this.isJumping = false;
+            
+            // Collide with the top right tile when moving left
+            } else if(this.tempY - this.height < tile[4].y + tile[4].height && this.tempX > tile[5].x && this.lastX > this.tempX && tile[4].type !== TileType.air) {
+                this.tempY = tile[4].y + tile[4].height + this.height;
+                this.isFalling = true;
+                this.isJumping = false;
+            
+            // Collide with the top left tile when moving right            
+            } else if(this.tempY - this.height < tile[6].y + tile[6].height && this.tempX < tile[5].x && this.lastX < this.tempX && tile[6].type !== TileType.air) {
+                this.tempY = tile[6].y + tile[6].height + this.height;
+                this.isFalling = true;
+                this.isJumping = false;
+                
+            // Collide with the top right tile when moving right           
+            } else if(this.tempY - this.height < tile[4].y + tile[4].height && this.tempX > tile[5].x && this.lastX < this.tempX && tile[4].type !== TileType.air) {
+                this.tempY = tile[4].y + tile[4].height + this.height;
+                this.isFalling = true;
+                this.isJumping = false;    
+                
+            // Collide with the top left tile when moving left           
+            } else if(this.tempY - this.height < tile[6].y + tile[6].height && this.tempX < tile[5].x && this.lastX > this.tempX && tile[6].type !== TileType.air) {
+                this.tempY = tile[6].y + tile[6].height + this.height;
                 this.isFalling = true;
                 this.isJumping = false;
             }
