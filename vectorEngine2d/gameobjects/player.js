@@ -131,7 +131,7 @@ Player.prototype.collide = function() {
         
         // Collide up
         if(this.lastY > this.tempY) {
-            // Normal collision
+            // Normal upwards collision
             if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type !== TileType.air) {
                 this.tempY = tile[5].y + tile[5].height + this.height;
                 this.isFalling = true;
@@ -201,11 +201,12 @@ Player.prototype.update = function() {
         } else {
             if(this.isJumping) {
                 this.isJumping = false;
-                jumpDist = 0;
+                this.isFalling = true;
+                this.jumpDist = 0;
             }
         }
-        var jumpVel = -15;
-        this.jumpDist += 1;
+        var jumpVel = -13;
+        this.jumpDist++;
         
         // Finished jumping
         if(this.jumpDist > this.maxJumpDist) {
@@ -260,13 +261,13 @@ Player.prototype.draw = function() {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
         var y = ((this.height / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
         
-        renderManager.drawRectangle(this.x - this.scene.camera.x, this.y - this.height, this.width, this.height, "transparent", 0, "#218ae0");
+        renderManager.drawRectangle(this.x - this.scene.camera.x, this.y - this.height, this.width, this.height, "transparent", 0, this.isJumping ? "lime" : (this.isFalling ? "red" : "#218ae0"));
         renderManager.drawCircle(this.x - this.scene.camera.x, this.y, 2, "transparent", 0, "magenta");
         
-        for(var i = 0; i < this.DEBUG.tile.length; i++) {
+        /*for(var i = 0; i < this.DEBUG.tile.length; i++) {
             renderManager.drawText(this.DEBUG.tile[i].x - this.scene.camera.x + 8, this.DEBUG.tile[i].y + 12, "#444", "8pt sans-serif", "center", i);
             renderManager.drawRectangle(this.DEBUG.tile[i].x - this.scene.camera.x, this.DEBUG.tile[i].y, 16, 16, "#666", 1, "transparent");
-        }
+        }*/
     } else {
         // Calculate the animation speed
         var speed = 0;
