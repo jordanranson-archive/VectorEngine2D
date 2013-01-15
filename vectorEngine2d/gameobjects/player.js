@@ -78,43 +78,55 @@ Player.prototype.collide = function() {
         tile[9] = this.scene.tiles[posY][posX-1];
         this.DEBUG.tile = tile;
         
-        // Tile isn't air
-            // Collide right
-            if(this.lastX < this.tempX) {
-                if((this.tempX + this.width > tile[2].x && tile[2].type !== TileType.air)
-                || (this.tempX + this.width > tile[3].x && tile[3].type !== TileType.air)) {
-                    this.tempX = tile[2].x - this.width;
-                    this.velocityX = 0;
-                }
+        // Collide right
+        if(this.lastX < this.tempX) {
+            if((this.tempX + this.width > tile[2].x && tile[2].type !== TileType.air)
+            || (this.tempX + this.width > tile[3].x && tile[3].type !== TileType.air)) {
+                this.tempX = tile[2].x - this.width;
+                this.velocityX = 0;
             }
+        }
+        
+        // Collide left
+        if(this.lastX > this.tempX) {
+            if((this.tempX < tile[8].x + tile[8].width && tile[8].type !== TileType.air)
+            || (this.tempX < tile[7].x + tile[8].width && tile[7].type !== TileType.air)) {
+                this.tempX = tile[8].x + tile[8].width;
+                this.velocityX = 0;
+            }
+        }
+        
+        // Collide down
+        if(this.lastY <= this.tempY) {
+            // Normal downwards collision
+            if(this.tempY > tile[0].y && tile[0].type !== TileType.air) {
+                this.tempY = tile[0].y;
+                this.isFalling = false;
             
-            // Collide left
-            if(this.lastX > this.tempX) {
-                if((this.tempX < tile[8].x + tile[8].width && tile[8].type !== TileType.air)
-                || (this.tempX < tile[7].x + tile[8].width && tile[7].type !== TileType.air)) {
-                    this.tempX = tile[8].x + tile[8].width;
-                    this.velocityX = 0;
-                }
-            }
+            // Collide with the bottom right tile when moving left
+            } else if(this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type !== TileType.air) {
+                this.tempY = tile[1].y;
+                this.isFalling = false;
             
-            // Collide down
-            if(this.lastY < this.tempY) {
-                if(this.tempY > tile[0].y && tile[0].type !== TileType.air) {
-                    this.tempY = tile[0].y;
-                    this.isFalling = false;
-                } else {
-                    this.isFalling = true;
-                }
-            }
+            // Collide with the bottom left tile when moving right            
+            } else if(this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type !== TileType.air) {
+                this.tempY = tile[9].y;
+                this.isFalling = false;
             
-            // collide up
-            if(this.lastY > this.tempY) {
-                if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type !== TileType.air) {
-                    this.tempY = tile[5].y + tile[5].height + this.height;
-                    this.isFalling = true;
-                    this.isJumping = false;
-                }
+            // Fall
+            } else {
+                this.isFalling = true;
             }
+        }
+        
+        // collide up
+        if(this.lastY > this.tempY) {
+            if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type !== TileType.air) {
+                this.tempY = tile[5].y + tile[5].height + this.height;
+                this.isFalling = true;
+                this.isJumping = false;
+            }
+        }
     }
 };
 
