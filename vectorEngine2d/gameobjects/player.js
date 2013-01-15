@@ -99,32 +99,42 @@ Player.prototype.collide = function() {
         // Collide down
         if(this.lastY <= this.tempY) {
             // Normal downwards collision
-            if((this.tempY > tile[0].y && tile[0].type !== TileType.air)
-            || (this.lastY < tile[0].y && this.tempY > tile[0].y && tile[0].type === TileType.platform)) {
+            if(this.tempY >= tile[0].y && tile[0].type === TileType.solid) {
+                this.tempY = tile[0].y;
+                this.isFalling = false;
+            } else if(this.lastY <= tile[0].y && this.tempY > tile[0].y && tile[0].type === TileType.platform) {
                 this.tempY = tile[0].y;
                 this.isFalling = false;
             
             // Collide with the bottom right tile when moving left
-            } else if((this.tempY > tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type !== TileType.air)
-            || (this.lastY < tile[1].y && this.tempY > tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type === TileType.platform)) {
+            } else if(this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type === TileType.solid) {
+                this.tempY = tile[1].y;
+                this.isFalling = false;
+            } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type === TileType.platform) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;
             
             // Collide with the bottom left tile when moving right            
-            } else if((this.tempY > tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type !== TileType.air)
-            || (this.lastY < tile[9].y && this.tempY > tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.platform)) {
+            } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.solid) {
+                this.tempY = tile[9].y;
+                this.isFalling = false;
+            } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.platform) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
                 
             // Collide with the bottom right tile when moving right           
-            } else if((this.tempY > tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type !== TileType.air)
-            || (this.lastY < tile[1].y && this.tempY > tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type === TileType.platform)) {
+            } else if(this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type === TileType.solid) {
+                this.tempY = tile[1].y;
+                this.isFalling = false;  
+            } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type === TileType.platform) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;    
                 
             // Collide with the bottom left tile when moving left           
-            } else if((this.tempY > tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type !== TileType.air)
-            || (this.lastY < tile[9].y && this.tempY > tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.platform)) {
+            } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.solid) {
+                this.tempY = tile[9].y;
+                this.isFalling = false;
+            } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.platform) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
             
