@@ -11,11 +11,23 @@ var Tile = function(scene, x, y, width, height, type, display) {
 
 Tile.prototype.draw = function() {
     // Is the tile visible on screen
-    if(this.displayType !== TileDisplayType.none 
-    && this.x - this.scene.camera.x + this.width > 0 
+    if(this.x - this.scene.camera.x + this.width > 0 
     && this.x - this.scene.camera.x - this.width < this.scene.renderManager.canvas.width) {
-        if(this.displayType === TileDisplayType.normal) {
+        if(this.type === TileType.air) {
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y, this.width, this.height, "transparent", 0, "#181818");
+        }
+        if(this.type === TileType.solid) {
             this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y, this.width, this.height, "transparent", 0, "#333");
+        }
+        if(this.type === TileType.platform) {
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y, this.width, this.height / 2, "transparent", 0, "#333");
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y + this.height / 2, this.width, this.height / 2, "transparent", 0, "#181818");
+        }
+        if(this.type === TileType.ladder) {
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y, this.width, this.height / 4, "transparent", 0, "#333");
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y + this.height / 4, this.width, this.height / 4, "transparent", 0, "#181818");
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y + this.height / 2, this.width, this.height / 4, "transparent", 0, "#333");
+            this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y + this.height - this.height / 4, this.width, this.height / 4, "transparent", 0, "#181818");
         }
     } 
 };

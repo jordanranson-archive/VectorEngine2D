@@ -84,6 +84,9 @@ Player.prototype.collide = function() {
             || (this.tempX + this.width > tile[3].x && tile[3].type === TileType.solid)) {
                 this.tempX = tile[2].x - this.width;
                 this.velocityX = 0;
+                /*this.isFalling = true;
+                this.isJumping = false;*/
+
             }
         }
         
@@ -93,6 +96,8 @@ Player.prototype.collide = function() {
             || (this.tempX < tile[7].x + this.width && tile[7].type === TileType.solid)) {
                 this.tempX = tile[8].x + this.width;
                 this.velocityX = 0;
+                /*this.isFalling = true;
+                this.isJumping = false;*/
             }
         }
         
@@ -119,7 +124,8 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[0].y && tile[0].type === TileType.solid) {
                 this.tempY = tile[0].y;
                 this.isFalling = false;
-            } else if(this.lastY <= tile[0].y && this.tempY > tile[0].y && tile[0].type === TileType.platform) {
+            } else if(this.lastY <= tile[0].y && this.tempY > tile[0].y 
+            && (tile[0].type === TileType.platform || tile[0].type === TileType.ladder)) {
                 this.tempY = tile[0].y;
                 this.isFalling = false;
             
@@ -127,7 +133,8 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type === TileType.solid) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;
-            } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type === TileType.platform) {
+            } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX 
+            && (tile[1].type === TileType.platform || tile[1].type === TileType.ladder)) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;
             
@@ -135,7 +142,8 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.solid) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
-            } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.platform) {
+            } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX 
+            && (tile[9].type === TileType.platform || tile[9].type === TileType.ladder)) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
                 
@@ -143,7 +151,8 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type === TileType.solid) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;  
-            } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type === TileType.platform) {
+            } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX 
+            && (tile[1].type === TileType.platform || tile[1].type === TileType.ladder)) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;    
                 
@@ -151,7 +160,8 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.solid) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
-            } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.platform) {
+            } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX 
+            && (tile[9].type === TileType.platform || tile[9].type === TileType.ladder)) {
                 this.tempY = tile[9].y;
                 this.isFalling = false;
             
@@ -303,8 +313,9 @@ Player.prototype.draw = function() {
         var x = ((this.width / 2) * Math.cos((this.angle + 90) * Math.PI / 180)) + this.x;
         var y = ((this.height / 2) * Math.sin((this.angle + 90) * Math.PI / 180)) + this.y;
         
-        renderManager.drawRectangle(this.x - this.scene.camera.x, this.y - this.height, this.width, this.height, "transparent", 0, this.isJumping ? "lime" : (this.isFalling ? "red" : "#218ae0"));
-        renderManager.drawCircle(this.x - this.scene.camera.x, this.y, 2, "transparent", 0, "magenta");
+        //renderManager.drawRectangle(this.x - this.scene.camera.x, this.y - this.height, this.width, this.height, "transparent", 0, this.isJumping ? "lime" : (this.isFalling ? "red" : "#218ae0"));
+        renderManager.drawRectangle(this.x - this.scene.camera.x, this.y - this.height, this.width, this.height, "transparent", 0, "#218ae0");
+        //renderManager.drawCircle(this.x - this.scene.camera.x, this.y, 2, "transparent", 0, "magenta");
         
         /*for(var i = 0; i < this.DEBUG.tile.length; i++) {
             renderManager.drawText(this.DEBUG.tile[i].x - this.scene.camera.x + 8, this.DEBUG.tile[i].y + 12, "#444", "8pt sans-serif", "center", i);
