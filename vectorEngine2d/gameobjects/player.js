@@ -110,8 +110,13 @@ Player.prototype.collide = function() {
         
         // Collide down
         if(this.lastY <= this.tempY) {
+            // Bottom of level boundry
+            if(this.tempY + tile[0].height >= this.scene.levelHeight * tile[0].height) {
+                this.isAlive = false;
+                this.isFalling = true;
+        
             // Normal downwards collision
-            if(this.tempY >= tile[0].y && tile[0].type === TileType.solid) {
+            } else if(this.tempY >= tile[0].y && tile[0].type === TileType.solid) {
                 this.tempY = tile[0].y;
                 this.isFalling = false;
             } else if(this.lastY <= tile[0].y && this.tempY > tile[0].y && tile[0].type === TileType.platform) {
@@ -158,8 +163,14 @@ Player.prototype.collide = function() {
         
         // Collide up
         if(this.lastY > this.tempY) {
+            // Top of level boundry
+            if(this.tempY - this.height - tile[0].height < 0) {
+                this.tempY = this.height + tile[0].height;
+                this.isFalling = true;
+                this.isJumping = false;
+            
             // Normal upwards collision
-            if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type === TileType.solid) {
+            } else if(this.tempY - this.height < tile[5].y + tile[5].height && tile[5].type === TileType.solid) {
                 this.tempY = tile[5].y + tile[5].height + this.height;
                 this.isFalling = true;
                 this.isJumping = false;
