@@ -89,11 +89,23 @@ Player.prototype.collide = function() {
         
         // Collide left
         if(this.lastX > this.tempX) {
-            if((this.tempX < tile[8].x + tile[8].width && tile[8].type === TileType.solid)
-            || (this.tempX < tile[7].x + tile[8].width && tile[7].type === TileType.solid)) {
-                this.tempX = tile[8].x + tile[8].width;
+            if((this.tempX < tile[8].x + this.width && tile[8].type === TileType.solid)
+            || (this.tempX < tile[7].x + this.width && tile[7].type === TileType.solid)) {
+                this.tempX = tile[8].x + this.width;
                 this.velocityX = 0;
             }
+        }
+        
+        // Collide with right level boundry
+        if(this.lastX < this.tempX && this.tempX + this.width + tile[0].width > this.scene.levelLength * tile[0].width) {
+            this.tempX = this.scene.levelLength * tile[0].width - tile[0].width - this.width;
+            this.velocityX = 0;
+        }
+        
+        // Collide with left level boundry
+        if(this.lastX > this.tempX && this.tempX - tile[0].width < 0) {
+            this.tempX = tile[0].width;
+            this.velocityX = 0;
         }
         
         // Collide down

@@ -5,6 +5,8 @@ var Level = function(game, levelId) {
     this.sceneManager = game.sceneManager;
     this.camera = new Camera(this.renderManager.canvas.width / 2, this.renderManager.canvas.height / 2);
     this.tiles = [];
+    this.levelLength = 0;
+    this.levelHeight = 0;
     this.gameObjectManager = new GameObjectManager(this);
     
     // States
@@ -54,6 +56,10 @@ Level.prototype.loadTiles = function() {
     var tile;
     var tileSize = 16;
     var tileType;
+    
+    this.levelLength = tileRows[0].split('').length;
+    this.levelHeight = tileRows.length;
+    
     for(var y = 0; y < tileRows.length; y++) {
         tileCols = tileRows[y].split('');
         tiles = [];
