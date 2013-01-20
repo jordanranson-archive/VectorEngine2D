@@ -33,6 +33,7 @@ var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
     this.isOnSolidGround = false;
     this.isAlive = false;
     this.isFacingForwards = true;
+    this.isClimbing = false;
 };
 
 // Initialization
@@ -66,6 +67,14 @@ Player.prototype.collide = function() {
     
     // Tiles exist
     if(this.scene.tiles[posY] && this.scene.tiles[posY][posX]) {
+        /*
+        Tile Layout
+        6 5 4
+        7   3
+        8   2
+        9 0 1
+        */
+        
         tile[0] = this.scene.tiles[posY][posX];
         tile[1] = this.scene.tiles[posY][posX+1];
         tile[2] = this.scene.tiles[posY-1][posX+1];
@@ -124,10 +133,23 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[0].y && tile[0].type === TileType.solid) {
                 this.tempY = tile[0].y;
                 this.isFalling = false;
-            } else if(this.lastY <= tile[0].y && this.tempY > tile[0].y 
-            && (tile[0].type === TileType.platform || tile[0].type === TileType.ladder)) {
-                this.tempY = tile[0].y;
-                this.isFalling = false;
+            } else if(this.lastY <= tile[0].y && this.tempY >= tile[0].y) {
+                // Platforms
+                if(tile[0].type === TileType.platform) {
+                    this.tempY = tile[0].y;
+                    this.isFalling = false;
+                }
+                // Ladders
+                if(tile[0].type === TileType.ladder) {
+                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    && (this.tempX + this.width < tile[1].x || tile[1].type !== TileType.solid) // right tile
+                    && (this.tempX > tile[0].x || tile[9].type !== TileType.solid)) { // left tile
+                        this.isClimbing = true;
+                    } else {
+                        this.tempY = tile[0].y;
+                        this.isFalling = false;
+                    }
+                }
             
             // Collide with the bottom right tile when moving left
             } else if(this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX && tile[1].type === TileType.solid) {
@@ -137,6 +159,7 @@ Player.prototype.collide = function() {
             && (tile[1].type === TileType.platform || tile[1].type === TileType.ladder)) {
                 this.tempY = tile[1].y;
                 this.isFalling = false;
+                
             
             // Collide with the bottom left tile when moving right            
             } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.solid) {
