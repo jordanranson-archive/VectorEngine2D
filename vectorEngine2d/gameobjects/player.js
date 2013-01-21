@@ -93,9 +93,6 @@ Player.prototype.collide = function() {
             || (this.tempX + this.width > tile[3].x && tile[3].type === TileType.solid)) {
                 this.tempX = tile[2].x - this.width;
                 this.velocityX = 0;
-                /*this.isFalling = true;
-                this.isJumping = false;*/
-
             }
         }
         
@@ -105,8 +102,6 @@ Player.prototype.collide = function() {
             || (this.tempX < tile[7].x + this.width && tile[7].type === TileType.solid)) {
                 this.tempX = tile[8].x + this.width;
                 this.velocityX = 0;
-                /*this.isFalling = true;
-                this.isJumping = false;*/
             }
         }
         
@@ -133,7 +128,7 @@ Player.prototype.collide = function() {
             } else if(this.tempY >= tile[0].y && tile[0].type === TileType.solid) {
                 this.tempY = tile[0].y;
                 this.isFalling = false;
-            } else if(this.lastY <= tile[0].y && this.tempY >= tile[0].y) {
+            } else if(this.lastY <= tile[0].y && this.tempY >= tile[0].y && (tile[0].type === TileType.platform || tile[0].type === TileType.ladder)) {
                 // Platforms
                 if(tile[0].type === TileType.platform) {
                     this.tempY = tile[0].y;
@@ -142,8 +137,8 @@ Player.prototype.collide = function() {
                 // Ladders
                 if(tile[0].type === TileType.ladder) {
                     if(this.scene.inputManager.isKeyDown(KeyAction.down) 
-                    && (this.tempX + this.width < tile[1].x || tile[1].type !== TileType.solid) // right tile
-                    && (this.tempX > tile[0].x || tile[9].type !== TileType.solid)) { // left tile
+                    && (this.tempX + this.width < tile[1].x || (tile[1].type === TileType.air || tile[1].type === TileType.ladder)) // right tile
+                    && (this.tempX > tile[0].x || (tile[9].type === TileType.air || tile[9].type === TileType.ladder))) { // left tile
                         this.isClimbing = true;
                     } else {
                         this.tempY = tile[0].y;
@@ -157,9 +152,21 @@ Player.prototype.collide = function() {
                 this.isFalling = false;
             } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX > this.tempX 
             && (tile[1].type === TileType.platform || tile[1].type === TileType.ladder)) {
-                this.tempY = tile[1].y;
-                this.isFalling = false;
-                
+                // Platforms
+                if(tile[1].type === TileType.platform) {
+                    this.tempY = tile[1].y;
+                    this.isFalling = false;
+                }
+                // Ladders
+                if(tile[1].type === TileType.ladder) {
+                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
+                        this.isClimbing = true;
+                    } else {
+                        this.tempY = tile[1].y;
+                        this.isFalling = false;
+                    }
+                }
             
             // Collide with the bottom left tile when moving right            
             } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX && tile[9].type === TileType.solid) {
@@ -167,8 +174,21 @@ Player.prototype.collide = function() {
                 this.isFalling = false;
             } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX < this.tempX 
             && (tile[9].type === TileType.platform || tile[9].type === TileType.ladder)) {
-                this.tempY = tile[9].y;
-                this.isFalling = false;
+                // Platforms
+                if(tile[9].type === TileType.platform) {
+                    this.tempY = tile[9].y;
+                    this.isFalling = false;
+                }
+                // Ladders
+                if(tile[9].type === TileType.ladder) {
+                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
+                        this.isClimbing = true;
+                    } else {
+                        this.tempY = tile[9].y;
+                        this.isFalling = false;
+                    }
+                }
                 
             // Collide with the bottom right tile when moving right           
             } else if(this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX && tile[1].type === TileType.solid) {
@@ -176,8 +196,21 @@ Player.prototype.collide = function() {
                 this.isFalling = false;  
             } else if(this.lastY <= tile[1].y && this.tempY >= tile[1].y && this.tempX > tile[0].x && this.lastX < this.tempX 
             && (tile[1].type === TileType.platform || tile[1].type === TileType.ladder)) {
-                this.tempY = tile[1].y;
-                this.isFalling = false;    
+                // Platforms
+                if(tile[1].type === TileType.platform) {
+                    this.tempY = tile[1].y;
+                    this.isFalling = false;
+                }
+                // Ladders
+                if(tile[1].type === TileType.ladder) {
+                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
+                        this.isClimbing = true;
+                    } else {
+                        this.tempY = tile[1].y;
+                        this.isFalling = false;
+                    }
+                }   
                 
             // Collide with the bottom left tile when moving left           
             } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.solid) {
@@ -185,8 +218,21 @@ Player.prototype.collide = function() {
                 this.isFalling = false;
             } else if(this.lastY <= tile[9].y && this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX 
             && (tile[9].type === TileType.platform || tile[9].type === TileType.ladder)) {
-                this.tempY = tile[9].y;
-                this.isFalling = false;
+                // Platforms
+                if(tile[9].type === TileType.platform) {
+                    this.tempY = tile[9].y;
+                    this.isFalling = false;
+                }
+                // Ladders
+                if(tile[9].type === TileType.ladder) {
+                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
+                        this.isClimbing = true;
+                    } else {
+                        this.tempY = tile[9].y;
+                        this.isFalling = false;
+                    }
+                }
             
             // Fall
             } else {
@@ -310,6 +356,7 @@ Player.prototype.update = function() {
             this.isFalling = false;
             this.isFacingForward = true;
             this.isAlive = true;
+            this.isClimbing = false;
             this.timeDead = 0;
         }
         
@@ -344,6 +391,9 @@ Player.prototype.draw = function() {
             renderManager.drawText(this.DEBUG.tile[i].x - this.scene.camera.x + 8, this.DEBUG.tile[i].y + 12, "#444", "8pt sans-serif", "center", i);
             renderManager.drawRectangle(this.DEBUG.tile[i].x - this.scene.camera.x, this.DEBUG.tile[i].y, 16, 16, "#666", 1, "transparent");
         }*/
+        if(this.isClimbing) renderManager.drawText(0, 10, "red", "14px monospace", "left", "climbing");
+        if(this.isJumping) renderManager.drawText(0, 20, "red", "14px monospace", "left", "jumping");
+        if(this.isFalling) renderManager.drawText(0, 30, "red", "14px monospace", "left", "falling");
     } else {
         // Calculate the animation speed
         var speed = 0;
