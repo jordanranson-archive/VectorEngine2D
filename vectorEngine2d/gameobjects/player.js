@@ -42,7 +42,7 @@ Player.prototype.init = function() {
     
     // Start jumping
     this.scene.inputManager.addKeyEvent(KeyAction.jump, function() {
-        if(!_this.isFalling && !_this.isJumping && _this.isAlive) {
+        if(!_this.isFalling && !_this.isJumping && _this.isAlive && !_this.isClimbing) {
             _this.isJumping = true;
         }
     });
@@ -291,16 +291,30 @@ Player.prototype.update = function() {
     this.tempY = this.y;
     
     if(this.isAlive) {
-        // Accelerate
-        if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
-            this.addVelocity(0.5, 0);
-            this.isFacingForwards = true;
-        }
-        
-        // Brake
-        if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
-            this.addVelocity(-0.5, 0);
-            this.isFacingForwards = false;
+        if(this.isClimbing) {
+            if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
+                this.addVelocity(0.2, 0);
+                this.isFacingForwards = true;
+            }
+            if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
+                this.addVelocity(-0.2, 0);
+                this.isFacingForwards = false;
+            }
+            if(this.scene.inputManager.isKeyDown(KeyAction.up)) {
+                this.addVelocity(0, -0.2);
+            }
+            if(this.scene.inputManager.isKeyDown(KeyAction.down)) {
+                this.addVelocity(0, 0.2);
+            }
+        } else {
+            if(this.scene.inputManager.isKeyDown(KeyAction.forward)) {
+                this.addVelocity(0.5, 0);
+                this.isFacingForwards = true;
+            }
+            if(this.scene.inputManager.isKeyDown(KeyAction.backward)) {
+                this.addVelocity(-0.5, 0);
+                this.isFacingForwards = false;
+            }
         }
     }
     
@@ -310,7 +324,7 @@ Player.prototype.update = function() {
         
     // Add velocity to position
     this.tempX += this.velocityX;
-    this.tempY += this.velocityY + 6; // gravity
+    this.tempY += this.velocityY + (this.isClimbing ? 0 : 6); // gravity
     
     // Jumping logic
     if(this.isJumping && this.isAlive) {
@@ -391,9 +405,9 @@ Player.prototype.draw = function() {
             renderManager.drawText(this.DEBUG.tile[i].x - this.scene.camera.x + 8, this.DEBUG.tile[i].y + 12, "#444", "8pt sans-serif", "center", i);
             renderManager.drawRectangle(this.DEBUG.tile[i].x - this.scene.camera.x, this.DEBUG.tile[i].y, 16, 16, "#666", 1, "transparent");
         }*/
-        if(this.isClimbing) renderManager.drawText(0, 10, "red", "14px monospace", "left", "climbing");
-        if(this.isJumping) renderManager.drawText(0, 20, "red", "14px monospace", "left", "jumping");
-        if(this.isFalling) renderManager.drawText(0, 30, "red", "14px monospace", "left", "falling");
+        if(this.isClimbing) { renderManager.drawText(0, 10, "red", "14px monospace", "left", "climbing") };
+        if(this.isJumping) { renderManager.drawText(0, 20, "red", "14px monospace", "left", "jumping") };
+        if(this.isFalling) { renderManager.drawText(0, 30, "red", "14px monospace", "left", "falling") };
     } else {
         // Calculate the animation speed
         var speed = 0;
