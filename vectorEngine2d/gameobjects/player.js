@@ -96,11 +96,13 @@ Player.prototype.collide = function() {
         if(this.lastX < this.tempX) {
             if((this.tempX + this.width > tile[2].x && tile[2].type === TileType.solid)
             || (this.tempX + this.width > tile[3].x && tile[3].type === TileType.solid)
-            || (!this.isClimbing && this.tempY-6 > tile[1].y && this.tempX + this.width > tile[1].x + this.width && tile[1].type === TileType.solid)
-            || (this.isClimbing && this.tempY-2 > tile[1].y && this.tempX + this.width > tile[1].x + this.width && tile[1].type === TileType.solid)) {
+            || (!this.isClimbing && this.tempY - 6               > tile[1].y                  && this.tempX + this.width > tile[1].x && tile[1].type === TileType.solid)
+            || (this.isClimbing  && this.tempY - 2               > tile[1].y                  && this.tempX + this.width > tile[1].x && tile[1].type === TileType.solid)
+            || (!this.isClimbing && this.tempY - this.height + 6 < tile[4].y + tile[4].height && this.tempX + this.width > tile[4].x && tile[4].type === TileType.solid)
+            || (this.isClimbing  && this.tempY - this.height + 2 < tile[4].y + tile[4].height && this.tempX + this.width > tile[4].x && tile[4].type === TileType.solid)) {
                 this.tempX = tile[2].x - this.width;
                 this.velocityX = 0;
-                this.velocityY = 0;
+                this.velocityY *= 0.97;
             }
         }
         
@@ -108,8 +110,10 @@ Player.prototype.collide = function() {
         if(this.lastX > this.tempX) {
             if((this.tempX < tile[8].x + this.width && tile[8].type === TileType.solid)
             || (this.tempX < tile[7].x + this.width && tile[7].type === TileType.solid)
-            || (!this.isClimbing && this.tempY-6 > tile[9].y && this.tempX < tile[9].x + this.width && tile[9].type === TileType.solid)
-            || (this.isClimbing && this.tempY-2 > tile[9].y && this.tempX < tile[9].x + this.width && tile[9].type === TileType.solid)) {
+            || (!this.isClimbing && this.tempY - 6               > tile[9].y                  && this.tempX < tile[9].x + tile[9].width && tile[9].type === TileType.solid)
+            || (this.isClimbing  && this.tempY - 2               > tile[9].y                  && this.tempX < tile[9].x + tile[9].width && tile[9].type === TileType.solid)
+            || (!this.isClimbing && this.tempY - this.height + 6 < tile[6].y + tile[6].height && this.tempX < tile[6].x + tile[6].width && tile[6].type === TileType.solid)
+            || (this.isClimbing  && this.tempY - this.height + 2 < tile[6].y + tile[6].height && this.tempX < tile[6].x + tile[6].width && tile[6].type === TileType.solid)) {
                 this.tempX = tile[8].x + this.width;
                 this.velocityX = 0;
                 this.velocityY *= 0.97;
