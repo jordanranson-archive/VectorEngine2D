@@ -13,6 +13,9 @@ Tile.prototype.draw = function() {
     // Is the tile visible on screen
     if(this.x - this.scene.camera.x + this.width > 0 
     && this.x - this.scene.camera.x - this.width < this.scene.renderManager.canvas.width) {
+        if(this.type !== TileType.air) {
+            this.scene.renderManager.drawCircle(this.x - this.scene.camera.x, this.y, 2, "transparent", 0, "rgba(255,255,0,0.05)");
+        }
         if(this.type === TileType.air) {
             this.scene.renderManager.drawRectangle(this.x - Math.round(this.scene.camera.x), this.y, this.width, this.height, "transparent", 0, "#181818");
         }
