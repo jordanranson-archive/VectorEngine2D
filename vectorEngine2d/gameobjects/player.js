@@ -1,8 +1,6 @@
 var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
     // Constants
     this._maxJumpDist = 8;
-    this._jumpDist = 0;
-    this._timeDead = 100;
     this._forwardVelocity = 0.35;
     this._climbSpeed = 0.2;
 
@@ -21,6 +19,9 @@ var Player = function(scene, x, y, width, height, drawingWidth, drawingHeight) {
     this.lastY = y - 1;
     this.tempX = 0;
     this.tempY = 0;
+    this.timeJumping = 0;
+    this.timeDead = 100;
+    this.timeClimbing = 0;
     
     this.DEBUG = {};
     
@@ -50,6 +51,12 @@ Player.prototype.init = function() {
         if(!_this.isFalling && !_this.isJumping && _this.isAlive && !_this.isClimbing) {
             _this.isJumping = true;
         }
+    });
+    this.scene.inputManager.addKeyEvent(Key.q, function() {
+        _this.isClimbing = false;
+    });
+    this.scene.inputManager.addKeyEvent(Key.w, function() {
+        _this.isClimbing = true;
     });
 };
 
@@ -90,6 +97,7 @@ Player.prototype.collide = function() {
         tile[7] = this.scene.tiles[posY-2][posX-1];
         tile[8] = this.scene.tiles[posY-1][posX-1];
         tile[9] = this.scene.tiles[posY][posX-1];
+        tile[10] = this.scene.tiles[posY-1][posX];
         this.DEBUG.tile = tile;
         
         // Collide right
@@ -151,13 +159,18 @@ Player.prototype.collide = function() {
                 }
                 // Ladders
                 if(tile[0].type === TileType.ladder) {
-                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    if(!this.isClimbing && this.scene.inputManager.isKeyDown(KeyAction.down) 
                     && (this.tempX + this.width < tile[1].x || (tile[1].type === TileType.air || tile[1].type === TileType.ladder)) // right tile
                     && (this.tempX > tile[0].x || (tile[9].type === TileType.air || tile[9].type === TileType.ladder))) { // left tile
                         this.isClimbing = true;
-                    } else {
+                        this.velocityX = 0;
+                        this.velocityY = 0;
                         this.tempY = tile[0].y;
-                        this.isFalling = false;
+                    } else {
+                        if(!this.isClimbing) {
+                            this.tempY = tile[0].y;
+                            this.isFalling = false;
+                        }
                     }
                 }
             
@@ -174,12 +187,17 @@ Player.prototype.collide = function() {
                 }
                 // Ladders
                 if(tile[1].type === TileType.ladder) {
-                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
-                    && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
+                    if(!this.isClimbing && this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    && ((tile[0].type === TileType.air || tile[0].type === TileType.ladder))) {
                         this.isClimbing = true;
-                    } else {
+                        this.velocityX = 0;
+                        this.velocityY = 0;
                         this.tempY = tile[1].y;
-                        this.isFalling = false;
+                    } else {
+                        if(!this.isClimbing) {
+                            this.tempY = tile[1].y;
+                            this.isFalling = false;
+                        }
                     }
                 }
             
@@ -196,12 +214,17 @@ Player.prototype.collide = function() {
                 }
                 // Ladders
                 if(tile[9].type === TileType.ladder) {
-                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    if(!this.isClimbing && this.scene.inputManager.isKeyDown(KeyAction.down) 
                     && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
                         this.isClimbing = true;
-                    } else {
+                        this.velocityX = 0;
+                        this.velocityY = 0;
                         this.tempY = tile[9].y;
-                        this.isFalling = false;
+                    } else {
+                        if(!this.isClimbing) {
+                            this.tempY = tile[9].y;
+                            this.isFalling = false;
+                        }
                     }
                 }
                 
@@ -218,14 +241,19 @@ Player.prototype.collide = function() {
                 }
                 // Ladders
                 if(tile[1].type === TileType.ladder) {
-                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    if(!this.isClimbing && this.scene.inputManager.isKeyDown(KeyAction.down) 
                     && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
                         this.isClimbing = true;
-                    } else {
+                        this.velocityX = 0;
+                        this.velocityY = 0;
                         this.tempY = tile[1].y;
-                        this.isFalling = false;
+                    } else {
+                        if(!this.isClimbing) {
+                            this.tempY = tile[1].y;
+                            this.isFalling = false;
+                        }
                     }
-                }   
+                }
                 
             // Collide with the bottom left tile when moving left           
             } else if(this.tempY >= tile[9].y && this.tempX < tile[0].x && this.lastX > this.tempX && tile[9].type === TileType.solid) {
@@ -240,18 +268,50 @@ Player.prototype.collide = function() {
                 }
                 // Ladders
                 if(tile[9].type === TileType.ladder) {
-                    if(this.scene.inputManager.isKeyDown(KeyAction.down) 
+                    if(!this.isClimbing && this.scene.inputManager.isKeyDown(KeyAction.down) 
                     && (tile[0].type === TileType.air || tile[0].type === TileType.ladder)) {
                         this.isClimbing = true;
-                    } else {
+                        this.velocityX = 0;
+                        this.velocityY = 0;
                         this.tempY = tile[9].y;
-                        this.isFalling = false;
+                    } else {
+                        if(!this.isClimbing) {
+                            this.tempY = tile[9].y;
+                            this.isFalling = false;
+                        }
                     }
                 }
             
             // Fall
             } else {
-                this.isFalling = true;
+                if(!this.isClimbing) { 
+                    this.isFalling = true;
+                }
+            }
+        }
+
+        // Try to fall if climbing a ladder
+        if(this.isClimbing) {
+            var shouldFall = true;
+            for(var i = 0; i < tile.length; i++) {
+                if(tile[i].type === TileType.ladder) {
+                    var left1 = this.tempX;
+                    var right1 = this.tempX + this.width;
+                    var top1 = this.tempY - this.height;
+                    var bottom1 = this.tempY;
+                    var left2 = tile[i].x;
+                    var right2 = tile[i].x + tile[i].width;
+                    var top2 = tile[i].y;
+                    var bottom2 = tile[i].y + tile[i].height;
+                    if(!(left1 >= right2 || left2 >= right1 || top1 >= bottom2 || top2 >= bottom1)) {
+                        shouldFall = false;
+                    }
+                }
+            }
+            if(shouldFall && this.timeClimbing > 0) { 
+                this.isClimbing = false;
+                this.velocityX = 0;
+                this.velocityY = 0;
             }
         }
         
@@ -352,45 +412,46 @@ Player.prototype.update = function() {
             if(this.isJumping) {
                 this.isJumping = false;
                 this.isFalling = true;
-                this._jumpDist = 0;
             }
         }
         var jumpVel = -15;
-        this._jumpDist++;
+        this.timeJumping++;
         
         // Finished jumping
-        if(this._jumpDist > this._maxJumpDist) {
+        if(this.timeJumping > this._maxJumpDist) {
             this.isJumping = false;
             this.isFalling = true;
-            this._jumpDist = 0;
         } else {
             this.velocityY = jumpVel;
         }    
     } else {
-        this._jumpDist = 0;
+        this.timeJumping = 0;
     }
     
     this.collide();
     
     // Reset when the player dies
     if(!this.isAlive) {
-        if(this._timeDead > 100) {
+        if(this.timeDead > 100) {
             this.tempX = this.scene.renderManager.canvas.width / 2;
             this.tempY = this.scene.renderManager.canvas.height / 2;
             this.velocityX = 0;
             this.velocityY = 0;
             this.passiveForwardVel = 0;
-            this._jumpDist = 0;
+            this.timeJumping = 0;
             this.isJumping = false;
             this.isFalling = false;
             this.isFacingForward = true;
             this.isAlive = true;
             this.isClimbing = false;
-            this._timeDead = 0;
+            this.timeDead = 0;
         }
         
-        this._timeDead++;
+        this.timeDead++;
     }
+    
+    if(this.isClimbing) { this.timeClimbing++; }
+    else { this.timeClimbing = 0; }
 
     this.x = this.tempX;
     this.y = this.tempY;
@@ -423,6 +484,7 @@ Player.prototype.draw = function() {
         if(this.isClimbing) { renderManager.drawText(0, 10, "red", "14px monospace", "left", "climbing") };
         if(this.isJumping) { renderManager.drawText(0, 20, "red", "14px monospace", "left", "jumping") };
         if(this.isFalling) { renderManager.drawText(0, 30, "red", "14px monospace", "left", "falling") };
+        renderManager.drawText(0, 40, "red", "14px monospace", "left", this.tempY);
     } else {
         // Calculate the animation speed
         var speed = 0;
