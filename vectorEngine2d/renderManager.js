@@ -110,15 +110,38 @@ RenderManager.prototype.drawSprite = function(image, x, y, width, height, sx, sy
     }
 };
 
-RenderManager.prototype.drawPolysprite = function(points, resource) { 
-    /*this.context.save();
+RenderManager.prototype.drawPolysprite = function(points, strokeColor, strokeWidth, fillColor) { 
+    this.context.save();
+
+    this.context.beginPath();
+    for(var i = 0; i < points.length; i++) {
+        if(i === 0) {
+            this.context.moveTo(points[i].x, points[i].y);
+        } else {
+            this.context.lineTo(points[i].x, points[i].y);
+        }
+    }
+    this.context.closePath();
     
-    this.context.rect(x, y, width, height);
-    this.context.clip();
+    this.context.lineWidth = strokeWidth;
+    this.context.strokeStyle = strokeColor;
+    this.context.stroke();
     
-    this.context.rect(x, y, this.canvas.width, this.canvas.height);
-    this.context.fillStyle = "red";
+    this.context.fillStyle = fillColor;
     this.context.fill();
     
-    this.context.restore();*/
+    this.context.restore();
+};
+
+RenderManager.getImageData = function(image) {
+    var canvas = document.createElement("canvas");
+    canvas.width = image.width;
+    canvas.height = image.height;
+    
+    var context = canvas.getContext("2d");
+    context.drawImage(image, 0, 0);
+    
+    var imageData = context.getImageData(0, 0, image.width, image.height);
+    
+    return imageData;
 };

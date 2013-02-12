@@ -34,3 +34,7 @@ Util.ajax = function(url, callback) {
     };
     request.send(null);
 };
+
+Util.getImageData = function(image) {
+    return RenderManager.getImageData(image);
+}
