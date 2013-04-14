@@ -1,6 +1,14 @@
 console.clear();
 console.log(new Date().getTime());
 
+Shades = {
+    veryDark: "#332532",
+    dark: "#644D52",
+    medium: "#F77A52",
+    light: "#FF974F",
+    veryLight: "#A49A87"
+};
+
 function Game(canvas) {
     this.canvas = canvas;
     this.context = canvas.getContext("2d");
@@ -13,13 +21,6 @@ function Game(canvas) {
     this.stats;
     
     // Collections
-    this.shades = {
-        veryDark: "#332532",
-        dark: "#644D52",
-        medium: "#F77A52",
-        light: "#FF974F",
-        veryLight: "#A49A87"
-    };
     this.keyEvents = {};
     this.keysPressed = {};
     this.keys = {
@@ -76,6 +77,11 @@ Game.prototype = {
     // Removes a key event
     removeKeyEvent: function(keyCode) {
         delete this.keyEvents[keyCode];
+    },
+    
+    // Checks if a key is being pressed
+    isKeyDown: function(keyCode) {
+        return this.keysPressed[keyCode];
     },
     
     // Loads a scene into the game

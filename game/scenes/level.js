@@ -2,10 +2,8 @@ Level = function() {
     this.camera;
     this.players = [];
     this.gameObjects = [];
-    
-    this.worldAABB;
-    this.world;
-    this.gravity;
+    this.initId = 0;
+    this.boundries = { right: 0, bottom: 0, top: 0, left: 0 };
 };
 
 Level.prototype = {
@@ -25,30 +23,23 @@ Level.prototype = {
         var _this = this;
 
         // Create the physics world
-        this.worldAABB = new b2AABB();
-        this.worldAABB.minVertex.Set(0, 0);
-        this.worldAABB.maxVertex.Set(game.canvas.width, game.canvas.height);
-        this.gravity = new b2Vec2(0, 300);
-        this.world = new b2World(this.worldAABB, this.gravity, true); 
-        
-        // Add the camera
-        this.camera = new Camera();
-        
-        // Add player
-        var player = new Player();
-        player.setPosition(300, 450);
-        this.gameObjects.push(player);
-        this.players.push(player);
-        
-        // Add ground shape
-        var ground = new Shape();
-        ground.setPoints([[25, 525], [999, 525], [999, 743], [25, 743], [25, 525]]);
-        this.gameObjects.push(ground);
-        
+        this.world = Box2dUtil.createWorld();
+        this.boundries.right = parseInt(game.canvas.width);
+        this.boundries.bottom = parseInt(game.canvas.height);
+        this.boundries.top = parseInt(game.canvas.style.top);
+        this.boundries.left = parseInt(game.canvas.style.left);
+
         // Initialize all the game objects
+        this.camera = new Camera();
+        this.gameObjects.push(this.camera);
+        
+        this.player = new Player();
+        this.gameObjects.push(this.player);
         for(var i = 0; i < this.gameObjects.length; i++) {
             this.gameObjects[i].init(game);
         }
+        
+        this.createLevel();
         
         // Update first tick early so everything appears to be in position     
         // before drawing
@@ -62,13 +53,25 @@ Level.prototype = {
         }
         callback();
     },
+    
+    createLevel: function() {
+        // create 2 big platforms	
+        Box2dUtil.createBox(this.world, 3, 230, 60, 180, true, 'ground');
+        Box2dUtil.createBox(this.world, 560, 360, 50, 50, true, 'ground');
+        
+        // create small platforms
+        for (var i = 0; i < 5; i++){
+            Box2dUtil.createBox(this.world, 150+(80*i), 360, 5, 40+(i*15), true, 'ground');	
+        }
+    },
 
     update: function(game) {
         if(!game.isPaused) {
             for(var i = 0; i < this.gameObjects.length; i++) {
                 this.gameObjects[i].update(game);
             }
-            this.world.Step(1.0/60, 1);
+
+            this.world.Step(TIME_STEP, 1);
         }
     },
 
@@ -77,6 +80,8 @@ Level.prototype = {
             for(var i = 0; i < this.gameObjects.length; i++) {
                 this.gameObjects[i].draw(game);
             }
+            
+            Box2dUtil.drawWorld(this.world, game.context);
         }
     }
 };
