@@ -52,6 +52,7 @@ function Game(canvas) {
     // Flags & states
     this.isMobile;
     this.isPaused = false;
+    this.isDebug = true;
 };
 
 Game.prototype = {
@@ -176,9 +177,8 @@ Game.prototype = {
         window.addEventListener("keydown", function(e) { _this.keydown(e); }, false);
         
         // Add a key event to pause the game
-        this.addKeyEvent(Key.escape, function() {
-            _this.isPaused = !_this.isPaused;
-        });
+        this.addKeyEvent(Key.escape, function() { _this.isPaused = !_this.isPaused; });
+        this.addKeyEvent(Key.escape, function() { _this.isDebug = !_this.isDebug; });
         
         // Mouse down event
         /*this.canvas.addEventListener("mousedown", function(e) {}, false);

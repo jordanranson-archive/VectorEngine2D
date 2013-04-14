@@ -1,7 +1,12 @@
 function Player() {
+    this.velocityX = 0;
+    this.velocityY = 0;
+    this.speedX = 20;
+    
     this.ballSd;
     this.ballBd;
     this.object = null;
+    
 	this.canJump = false;
 }
 
@@ -20,17 +25,17 @@ Player.prototype = {
         var _this = this;
 
         this.ballSd = new b2CircleDef();
-        this.ballSd.density = 0.1;
-        this.ballSd.radius = 20;
+        this.ballSd.density = 0.5;
+        this.ballSd.radius = 30;
         this.ballSd.restitution = 0.1;
-        this.ballSd.friction = 2;
+        this.ballSd.friction = 5;
         this.ballSd.userData = 'player';
         
         this.ballBd = new b2BodyDef();
         this.ballBd.linearDamping = .03;
         this.ballBd.allowSleep = false;
         this.ballBd.AddShape(this.ballSd);
-        this.ballBd.position.Set(20, 20);
+        this.ballBd.position.Set(512, 384);
         
         this.object = game.scene.world.CreateBody(this.ballBd);
     },
@@ -43,9 +48,18 @@ Player.prototype = {
     setPosition: function(x, y) {
 
     },
+    
+    addVelocity: function(x, y) {
+        this.velocityX += x;
+        this.velocityY += y;
+    },
 
     update: function(game) {
-        // up
+        // Decay speed
+        this.velocityX *= 0.95;
+        this.velocityY *= 0.98;
+        
+        // Collide
         var collision = game.scene.world.m_contactList;
         this.canJump = false;
         if (collision != null) {
@@ -59,18 +73,30 @@ Player.prototype = {
                 }
             }
         }
+        
+        // Get current velocity
         var vel = this.object.GetLinearVelocity();
-        if (game.isKeyDown(Key.upArrow) && this.canJump) {
-            vel.y = -300;	
+        
+        // Jump
+        if (game.isKeyDown(Key.upArrow)) {
+            if(this.velocityY > -50) { this.velocityY = -50; }
+            vel.y = this.velocityY;
+        }
+        else {
+            this.velocityY = -500;
         }
         
-        // left/right
+        // Move left and right
         if (game.isKeyDown(Key.leftArrow)) {
-            vel.x = -120;
+            var speed = !this.canJump ? this.speedX / 2 : this.speedX;
+            this.velocityX -= speed;
         }
         else if (game.isKeyDown(Key.rightArrow)) {
-            vel.x = 120;
+            var speed = !this.canJump ? this.speedX / 2 : this.speedX;
+            this.velocityX += speed;
         }
+        
+        vel.x = this.velocityX;
         this.object.SetLinearVelocity(vel);
     
         // Kill player

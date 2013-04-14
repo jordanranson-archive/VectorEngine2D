@@ -56,13 +56,7 @@ Level.prototype = {
     
     createLevel: function() {
         // create 2 big platforms	
-        Box2dUtil.createBox(this.world, 3, 230, 60, 180, true, 'ground');
-        Box2dUtil.createBox(this.world, 560, 360, 50, 50, true, 'ground');
-        
-        // create small platforms
-        for (var i = 0; i < 5; i++){
-            Box2dUtil.createBox(this.world, 150+(80*i), 360, 5, 40+(i*15), true, 'ground');	
-        }
+        Box2dUtil.createBox(this.world, 512, 550+225, 512, 225, true, 'ground');
     },
 
     update: function(game) {
@@ -71,17 +65,20 @@ Level.prototype = {
                 this.gameObjects[i].update(game);
             }
 
-            this.world.Step(TIME_STEP, 1);
+            this.world.Step(TIME_STEP * 1.5, 1);
         }
     },
 
     draw: function(game) {
         if(!game.isPaused) {
-            for(var i = 0; i < this.gameObjects.length; i++) {
-                this.gameObjects[i].draw(game);
+            if(game.isDebug) {
+                Box2dUtil.drawWorld(this.world, game.context);
+            } 
+            else {
+                for(var i = 0; i < this.gameObjects.length; i++) {
+                    this.gameObjects[i].draw(game);
+                }
             }
-            
-            Box2dUtil.drawWorld(this.world, game.context);
         }
     }
 };
