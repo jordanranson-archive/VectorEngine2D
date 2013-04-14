@@ -57,7 +57,7 @@ Player.prototype = {
     update: function(game) {
         // Decay speed
         this.velocityX *= 0.95;
-        this.velocityY *= 0.98;
+        this.velocityY *= this.velocityY > -100 ? 0.99 : 0.98;
         
         // Collide
         var collision = game.scene.world.m_contactList;
@@ -79,10 +79,10 @@ Player.prototype = {
         
         // Jump
         if (game.isKeyDown(Key.upArrow)) {
-            if(this.velocityY > -50) { this.velocityY = -50; }
+            //if(this.velocityY > -100) { this.velocityY = -100; }
             vel.y = this.velocityY;
         }
-        else {
+        else if (this.canJump) {
             this.velocityY = -500;
         }
         
