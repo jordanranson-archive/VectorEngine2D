@@ -1,1 +1,0 @@
-var NetworkManager = function(game) {    this.socket;    this.clientId;    this.players;}; // Execute logicVectorEngine2d.prototype.connect = function(url) {    this.socket = io.connect(url);    socket.on("game_update", function (data) {        console.log(data);        socket.emit("player_connect", {});    });};            
