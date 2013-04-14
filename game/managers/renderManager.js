@@ -19,6 +19,17 @@ RenderManager.prototype = {
         // Restore the transform
         this.context.restore();
     },
+    
+    // Draws a circle to the canvas
+    drawCircle: function(cx, cy, r, strokeColor, strokeWidth, fillColor) { 
+        this.context.beginPath();
+        this.context.arc(cx, cy, r, 0, 2 * Math.PI, false);
+        this.context.fillStyle = fillColor;
+        this.context.fill();
+        this.context.lineWidth = strokeWidth;
+        this.context.strokeStyle = strokeColor;
+        this.context.stroke();
+    },
 
     // Draws a line to the canvas
     drawLine: function(x1, y1, x2, y2, strokeColor, strokeWidth) { 

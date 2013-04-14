@@ -36,6 +36,7 @@ Level.prototype = {
         
         // Add player
         var player = new Player();
+        player.setPosition(300, 450);
         this.gameObjects.push(player);
         this.players.push(player);
         

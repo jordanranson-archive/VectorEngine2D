@@ -1,4 +1,4 @@
-//console.clear();
+console.clear();
 console.log(new Date().getTime());
 
 function Game(canvas) {
@@ -88,8 +88,8 @@ Game.prototype = {
             var timer = setInterval(function() {
                 if(!_this.resourceManager.isLoading) {
                     clearInterval(timer);
-                    scene.init(_this);
                     _this.scene = scene;
+                    scene.init(_this);
                 }
             }, 100);
         });
