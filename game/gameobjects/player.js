@@ -26,8 +26,8 @@ Player.prototype = {
 
         this.ballSd = new b2CircleDef();
         this.ballSd.density = 0.5;
-        this.ballSd.radius = 30;
-        this.ballSd.restitution = 0.1;
+        this.ballSd.radius = 35;
+        this.ballSd.restitution = 0;
         this.ballSd.friction = 5;
         this.ballSd.userData = 'player';
         
@@ -57,7 +57,7 @@ Player.prototype = {
     update: function(game) {
         // Decay speed
         this.velocityX *= 0.95;
-        this.velocityY *= this.velocityY > -100 ? 0.99 : 0.98;
+        this.velocityY *= this.velocityY > -100 ? 0.995 : 0.98;
         
         // Collide
         var collision = game.scene.world.m_contactList;
@@ -78,7 +78,7 @@ Player.prototype = {
         var vel = this.object.GetLinearVelocity();
         
         // Jump
-        if (game.isKeyDown(Key.upArrow)) {
+        if (game.isKeyDown(Key.upArrow) && this.velocityY < -50) {
             //if(this.velocityY > -100) { this.velocityY = -100; }
             vel.y = this.velocityY;
         }
@@ -88,11 +88,11 @@ Player.prototype = {
         
         // Move left and right
         if (game.isKeyDown(Key.leftArrow)) {
-            var speed = !this.canJump ? this.speedX / 2 : this.speedX;
+            var speed = !this.canJump ? this.speedX * 0.67 : this.speedX;
             this.velocityX -= speed;
         }
         else if (game.isKeyDown(Key.rightArrow)) {
-            var speed = !this.canJump ? this.speedX / 2 : this.speedX;
+            var speed = !this.canJump ? this.speedX * 0.67 : this.speedX;
             this.velocityX += speed;
         }
         
