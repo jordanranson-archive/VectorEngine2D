@@ -64,35 +64,39 @@ Level.prototype = {
         , b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
         , b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
         , b2DebugDraw = Box2D.Dynamics.b2DebugDraw;
-     
-       this.world = new b2World(
-             new b2Vec2(0, 10)    //gravity
+
+        this.world = new b2World(
+             new b2Vec2(0, 30)    //gravity
           ,  true                 //allow sleep
-       );
-     
-       var fixDef = new b2FixtureDef;
-       fixDef.density = 1.0;
-       fixDef.friction = 0.5;
-       fixDef.restitution = 0.2;
-     
-       var bodyDef = new b2BodyDef;
-     
-       //create ground
-       bodyDef.type = b2Body.b2_staticBody;
-       
-       // positions the center of the object (not upper left!)
-       bodyDef.position.x = canvas.width / 2 / SCALE;
-       bodyDef.position.y = canvas.height / SCALE;
-       
-       fixDef.shape = new b2PolygonShape;
-       
-       // half width, half height. eg actual height here is 1 unit
-       fixDef.shape.SetAsBox((canvasWidth / SCALE) / 2, (100  / SCALE));
-       this.world.CreateBody(bodyDef).CreateFixture(fixDef);
-     
-       //create some objects
-       bodyDef.type = b2Body.b2_dynamicBody;
-       /*for(var i = 0; i < 25; ++i) {
+        );
+
+        var fixDef = new b2FixtureDef;
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0;
+        fixDef.userData = "ground";
+
+        var bodyDef = new b2BodyDef;
+
+        //create ground
+        bodyDef.type = b2Body.b2_staticBody;
+
+        // positions the center of the object (not upper left!)
+        bodyDef.position.x = canvas.width / 2 / SCALE;
+        bodyDef.position.y = canvas.height / SCALE;
+
+        fixDef.shape = new b2PolygonShape;
+
+        // half width, half height. eg actual height here is 1 unit
+        fixDef.shape.SetAsBox((canvasWidth / SCALE) / 2, (100  / SCALE));
+        this.world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+        //create some objects
+        fixDef.restitution = 0.2;
+        //fixDef.userData = "doodad";
+        bodyDef.type = b2Body.b2_dynamicBody;
+        
+        for(var i = 0; i < 25; ++i) {
           if(Math.random() > 0.5) {
              fixDef.shape = new b2PolygonShape;
              fixDef.shape.SetAsBox(
@@ -107,16 +111,16 @@ Level.prototype = {
           bodyDef.position.x = Math.random() * 25;
           bodyDef.position.y = Math.random() * 10;
           this.world.CreateBody(bodyDef).CreateFixture(fixDef);
-       }*/
-     
-       //setup debug draw
-       debugDraw = new b2DebugDraw();
-       debugDraw.SetSprite(game.renderManager.context);
-       debugDraw.SetDrawScale(SCALE);
-       debugDraw.SetFillAlpha(0.3);
-       debugDraw.SetLineThickness(1.0);
-       debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
-       this.world.SetDebugDraw(debugDraw);
+        }
+
+        //setup debug draw
+        debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite(game.renderManager.context);
+        debugDraw.SetDrawScale(SCALE);
+        debugDraw.SetFillAlpha(0.3);
+        debugDraw.SetLineThickness(1.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit);
+        this.world.SetDebugDraw(debugDraw);
     },
 
     update: function(game) {
@@ -126,6 +130,7 @@ Level.prototype = {
             }
 
             this.world.Step((game.curTime - game.lastTime) / 1000, 10, 10);
+            this.world.ClearForces();
         }
     },
 
@@ -133,7 +138,6 @@ Level.prototype = {
         if(!game.isPaused) {
             if(game.isDebug) {
                 this.world.DrawDebugData();
-                this.world.ClearForces();
             } 
             else {
                 for(var i = 0; i < this.gameObjects.length; i++) {

@@ -1,7 +1,7 @@
 function Player() {
     this.velocityX = 0;
     this.velocityY = 0;
-    this.speedX = 1;
+    this.speedX = 0.35;
     
     this.body;
     
@@ -23,17 +23,20 @@ Player.prototype = {
         var _this = this;
         
         var fixDef = new B2.b2FixtureDef;
-        fixDef.density = 1.0;
-        fixDef.friction = 0.5;
-        fixDef.restitution = 0.2;
+        fixDef.density = 1.5;
+        fixDef.friction = 1.0;
+        fixDef.restitution = 0;
+        fixDef.userData = "player";
      
         var bodyDef = new B2.b2BodyDef;
-      
+        bodyDef.allowSleep = false;
         bodyDef.type = B2.b2Body.b2_dynamicBody;
+        
         fixDef.shape = new B2.b2CircleShape(0.6);
         
-        bodyDef.position.x = Math.random() * 25;
-        bodyDef.position.y = Math.random() * 10;
+        
+        bodyDef.position.x = (game.renderManager.canvas.width / SCALE) / 2;
+        bodyDef.position.y = (game.renderManager.canvas.height / SCALE) / 3;
         this.body = game.scene.world.CreateBody(bodyDef)
         this.body.CreateFixture(fixDef);
     },
@@ -55,18 +58,37 @@ Player.prototype = {
     update: function(game) {
         // Decay speed
         this.velocityX *= 0.95;
-        this.velocityY *= this.velocityY > -100 ? 0.995 : 0.98;
+        this.velocityY *= 0.95;
         
         // Collide
-        this.canJump = false;
-        
+        var collision = game.scene.world.m_contactList;
+        if (collision != null) {
+            if (collision.GetFixtureA().GetUserData() == "player" || collision.GetFixtureB().GetUserData() == "player") {
+                if ((collision.GetFixtureA().GetUserData() == "ground" || collision.GetFixtureB().GetUserData() == "ground")) {
+                    var playerObj = (collision.GetFixtureA().GetUserData() == "player" ? 
+                        collision.GetFixtureA().GetBody().GetPosition() : 
+                        collision.GetFixtureB().GetBody().GetPosition()
+                    );
+                    var groundObj = (collision.GetFixtureA().GetUserData() == "ground" ? 
+                        collision.GetFixtureA().GetBody().GetPosition() : 
+                        collision.GetFixtureB().GetBody().GetPosition()
+                    );
+                    if (playerObj.y < groundObj.y){
+                        this.canJump = true;
+                        console.log("TEST");
+                    }
+                }
+            }
+        }
+
         // Get current velocity
+        var vel = this.body.GetLinearVelocity();
         
         // Jump
-        if (game.isKeyDown(Key.upArrow) && this.velocityY < -50) {
-        }
-        else if (this.canJump) {
-
+        if (game.isKeyDown(Key.upArrow) && this.canJump) {
+            this.velocityY = -10;
+            vel.y = this.velocityY;
+            this.canJump = false;
         }
         
         // Move left and right
@@ -79,7 +101,6 @@ Player.prototype = {
             this.velocityX += speed;
         }
         
-        var vel = this.body.GetLinearVelocity();
         vel.x = this.velocityX;
         this.body.SetLinearVelocity(vel);
     
