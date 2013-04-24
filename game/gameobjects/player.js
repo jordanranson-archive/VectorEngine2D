@@ -1,11 +1,9 @@
 function Player() {
     this.velocityX = 0;
     this.velocityY = 0;
-    this.speedX = 20;
+    this.speedX = 1;
     
-    this.ballSd;
-    this.ballBd;
-    this.object = null;
+    this.body;
     
 	this.canJump = false;
 }
@@ -23,21 +21,21 @@ Player.prototype = {
     // Bind events and set values
     init: function(game) {
         var _this = this;
-
-        this.ballSd = new b2CircleDef();
-        this.ballSd.density = 0.5;
-        this.ballSd.radius = 35;
-        this.ballSd.restitution = 0;
-        this.ballSd.friction = 5;
-        this.ballSd.userData = 'player';
         
-        this.ballBd = new b2BodyDef();
-        this.ballBd.linearDamping = .03;
-        this.ballBd.allowSleep = false;
-        this.ballBd.AddShape(this.ballSd);
-        this.ballBd.position.Set(512, 384);
+        var fixDef = new B2.b2FixtureDef;
+        fixDef.density = 1.0;
+        fixDef.friction = 0.5;
+        fixDef.restitution = 0.2;
+     
+        var bodyDef = new B2.b2BodyDef;
+      
+        bodyDef.type = B2.b2Body.b2_dynamicBody;
+        fixDef.shape = new B2.b2CircleShape(0.6);
         
-        this.object = game.scene.world.CreateBody(this.ballBd);
+        bodyDef.position.x = Math.random() * 25;
+        bodyDef.position.y = Math.random() * 10;
+        this.body = game.scene.world.CreateBody(bodyDef)
+        this.body.CreateFixture(fixDef);
     },
 
     // Remove events, unload game content, etc
@@ -60,30 +58,15 @@ Player.prototype = {
         this.velocityY *= this.velocityY > -100 ? 0.995 : 0.98;
         
         // Collide
-        var collision = game.scene.world.m_contactList;
         this.canJump = false;
-        if (collision != null) {
-            if (collision.GetShape1().GetUserData() == 'player' || collision.GetShape2().GetUserData() == 'player') {
-                if ((collision.GetShape1().GetUserData() == 'ground' || collision.GetShape2().GetUserData() == 'ground')) {
-                    var playerObj = (collision.GetShape1().GetUserData() == 'player' ? collision.GetShape1().GetPosition() :  collision.GetShape2().GetPosition());
-                    var groundObj = (collision.GetShape1().GetUserData() == 'ground' ? collision.GetShape1().GetPosition() :  collision.GetShape2().GetPosition());
-                    if (playerObj.y < groundObj.y){
-                        this.canJump = true;
-                    }
-                }
-            }
-        }
         
         // Get current velocity
-        var vel = this.object.GetLinearVelocity();
         
         // Jump
         if (game.isKeyDown(Key.upArrow) && this.velocityY < -50) {
-            //if(this.velocityY > -100) { this.velocityY = -100; }
-            vel.y = this.velocityY;
         }
         else if (this.canJump) {
-            this.velocityY = -500;
+
         }
         
         // Move left and right
@@ -96,13 +79,11 @@ Player.prototype = {
             this.velocityX += speed;
         }
         
+        var vel = this.body.GetLinearVelocity();
         vel.x = this.velocityX;
-        this.object.SetLinearVelocity(vel);
+        this.body.SetLinearVelocity(vel);
     
         // Kill player
-        if (this.object.GetCenterPosition().y > game.canvas.height) {
-            this.object.SetCenterPosition(new b2Vec2(20, 20), 0);
-        }
     },
 
     draw: function(game) {
